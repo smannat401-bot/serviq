@@ -24,6 +24,81 @@ declare global {
   }
 }
 
+const generateMapHtml = (token: string, wlat?: number, wlon?: number, clat?: number, clon?: number) => {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Booking Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    html, body, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #f8fafc; }
+    .custom-marker-user { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #ef4444; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); color: white; font-size: 16px; cursor: pointer; transition: transform 0.2s ease; }
+    .custom-marker-worker { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #3b82f6; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4); color: white; font-size: 16px; cursor: pointer; transition: transform 0.2s ease; }
+    .mapboxgl-popup-content { border-radius: 12px; padding: 10px 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid rgba(226,232,240,0.8); font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+  <script>
+    const accessToken = "${token}";
+    const wlat = ${wlat !== undefined ? wlat : 'NaN'};
+    const wlon = ${wlon !== undefined ? wlon : 'NaN'};
+    const clat = ${clat !== undefined ? clat : 'NaN'};
+    const clon = ${clon !== undefined ? clon : 'NaN'};
+
+    mapboxgl.accessToken = accessToken;
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [!isNaN(clon) ? clon : 75.857, !isNaN(clat) ? clat : 30.901],
+      zoom: 13,
+      attributionControl: false
+    });
+
+    const markers = [];
+    if (!isNaN(clat) && !isNaN(clon)) {
+      const el = document.createElement('div');
+      el.className = 'custom-marker-user';
+      el.innerHTML = '🏠';
+      markers.push(new mapboxgl.Marker(el).setLngLat([clon, clat]).setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<b>Your Location</b><br>Service Address')).addTo(map));
+    }
+    if (!isNaN(wlat) && !isNaN(wlon)) {
+      const el = document.createElement('div');
+      el.className = 'custom-marker-worker';
+      el.innerHTML = '💼';
+      markers.push(new mapboxgl.Marker(el).setLngLat([wlon, wlat]).setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<b>Worker Location</b><br>Service Provider')).addTo(map));
+    }
+
+    if (!isNaN(clat) && !isNaN(clon) && !isNaN(wlat) && !isNaN(wlon)) {
+      const bounds = new mapboxgl.LngLatBounds().extend([clon, clat]).extend([wlon, wlat]);
+      map.fitBounds(bounds, { padding: 60 });
+      fetch(\`https://api.mapbox.com/directions/v5/mapbox/driving/\${wlon},\${wlat};\${clon},\${clat}?access_token=\${accessToken}&geometries=geojson&overview=full\`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.routes && data.routes.length > 0) {
+            map.on('load', () => {
+              map.addSource('route', { 'type': 'geojson', 'data': { 'type': 'Feature', 'properties': {}, 'geometry': data.routes[0].geometry } });
+              map.addLayer({ 'id': 'route', 'type': 'line', 'source': 'route', 'layout': { 'line-join': 'round', 'line-cap': 'round' }, 'paint': { 'line-color': '#3b82f6', 'line-width': 6, 'line-opacity': 0.85 } });
+            });
+          } else { drawStraightLine(); }
+        })
+        .catch(err => { drawStraightLine(); });
+    }
+
+    function drawStraightLine() {
+      map.on('load', () => {
+        map.addSource('route', { 'type': 'geojson', 'data': { 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'LineString', 'coordinates': [[wlon, wlat], [clon, clat]] } } });
+        map.addLayer({ 'id': 'route', 'type': 'line', 'source': 'route', 'layout': { 'line-join': 'round', 'line-cap': 'round' }, 'paint': { 'line-color': '#3b82f6', 'line-width': 4, 'line-dasharray': [2, 2], 'line-opacity': 0.8 } });
+      });
+    }
+  </script>
+</body>
+</html>`;
+}
+
 export default function BookingModal({ isOpen, onClose, workerId, workerName, serviceName, basePrice, availability }: BookingModalProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -122,17 +197,17 @@ export default function BookingModal({ isOpen, onClose, workerId, workerName, se
         } else {
           calculateStraightLineDistance(lat, lon);
         }
-        setMapUrl(`/map.html?accessToken=${token}&wlat=${workerCoords.lat}&wlon=${workerCoords.lon}&clat=${lat}&clon=${lon}`);
+        setMapUrl(generateMapHtml(token, workerCoords?.lat, workerCoords?.lon, lat, lon));
       } else {
-        setMapUrl(`/map.html?accessToken=${token}&clat=${lat}&clon=${lon}`);
+        setMapUrl(generateMapHtml(token, undefined, undefined, lat, lon));
       }
     } catch (err) {
       console.error('Mapbox Directions failed, falling back:', err);
       calculateStraightLineDistance(lat, lon);
       if (workerCoords) {
-        setMapUrl(`/map.html?accessToken=${token}&wlat=${workerCoords.lat}&wlon=${workerCoords.lon}&clat=${lat}&clon=${lon}`);
+        setMapUrl(generateMapHtml(token, workerCoords?.lat, workerCoords?.lon, lat, lon));
       } else {
-        setMapUrl(`/map.html?accessToken=${token}&clat=${lat}&clon=${lon}`);
+        setMapUrl(generateMapHtml(token, undefined, undefined, lat, lon));
       }
     } finally {
       setIsCalculatingMap(false);
@@ -176,18 +251,18 @@ export default function BookingModal({ isOpen, onClose, workerId, workerName, se
             } else {
               calculateStraightLineDistance(lat, lon);
             }
-            setMapUrl(`/map.html?accessToken=${token}&wlat=${workerCoords.lat}&wlon=${workerCoords.lon}&clat=${lat}&clon=${lon}`);
+            setMapUrl(generateMapHtml(token, workerCoords?.lat, workerCoords?.lon, lat, lon));
           } else {
-            setMapUrl(`/map.html?accessToken=${token}&clat=${lat}&clon=${lon}`);
+            setMapUrl(generateMapHtml(token, undefined, undefined, lat, lon));
           }
         } catch (err) {
           console.error('Geolocation reverse geocoding/routing error:', err);
           setLocation(`Current Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
           calculateStraightLineDistance(lat, lon);
           if (workerCoords) {
-            setMapUrl(`/map.html?accessToken=${token}&wlat=${workerCoords.lat}&wlon=${workerCoords.lon}&clat=${lat}&clon=${lon}`);
+            setMapUrl(generateMapHtml(token, workerCoords?.lat, workerCoords?.lon, lat, lon));
           } else {
-            setMapUrl(`/map.html?accessToken=${token}&clat=${lat}&clon=${lon}`);
+            setMapUrl(generateMapHtml(token, undefined, undefined, lat, lon));
           }
         } finally {
           setIsLocating(false);
@@ -571,9 +646,9 @@ export default function BookingModal({ isOpen, onClose, workerId, workerName, se
                             setIsCalculatingMap(false);
                           }
                           
-                          setMapUrl(`/map.html?accessToken=${token}&wlat=${workerCoords.lat}&wlon=${workerCoords.lon}&clat=${cLat}&clon=${cLon}`);
+                          setMapUrl(generateMapHtml(token, workerCoords?.lat, workerCoords?.lon, cLat, cLon));
                         } else {
-                          setMapUrl(`/map.html?accessToken=${token}&clat=${cLat}&clon=${cLon}`);
+                          setMapUrl(generateMapHtml(token, undefined, undefined, cLat, cLon));
                           setIsCalculatingMap(false);
                         }
                       } else {
@@ -585,9 +660,9 @@ export default function BookingModal({ isOpen, onClose, workerId, workerName, se
                         setIsCalculatingMap(false);
                         
                         if (workerCoords) {
-                          setMapUrl(`/map.html?accessToken=${token}&wlat=${workerCoords.lat}&wlon=${workerCoords.lon}&clat=${fallbackLat}&clon=${fallbackLon}`);
+                          setMapUrl(generateMapHtml(token, workerCoords.lat, workerCoords.lon, fallbackLat, fallbackLon));
                         } else {
-                          setMapUrl(`/map.html?accessToken=${token}&clat=${fallbackLat}&clon=${fallbackLon}`);
+                          setMapUrl(generateMapHtml(token, undefined, undefined, fallbackLat, fallbackLon));
                         }
                         
                         setError('Address map pin not found, but we applied a default 5 km distance so you can book now! Click Confirm Booking.');
@@ -620,7 +695,7 @@ export default function BookingModal({ isOpen, onClose, workerId, workerName, se
               {location && mapUrl && (
                 <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 relative h-64 bg-gray-100 dark:bg-gray-800 flex flex-col">
                   <iframe 
-                    src={mapUrl} 
+                    srcDoc={mapUrl} 
                     className="w-full h-full border-0" 
                     title="Booking Route Map" 
                   />
