@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, ShieldCheck, CheckCircle } from 'lucide-react';
-import { API_URL } from '../../config';
+import { API_URL, getAuthHeaders } from '../../config';
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -31,7 +31,7 @@ export default function CompletionModal({ isOpen, onClose, bookingId, onSuccess 
     try {
       const res = await fetch(`${API_URL}/api/bookings/${bookingId}/complete`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ code })
       });
 
