@@ -125,7 +125,7 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
 });
 
 // Verify completion code and mark completed
-router.patch('/:id/complete', async (req, res) => {
+router.patch('/:id/complete', verifyToken, async (req, res) => {
   try {
     const { code } = req.body;
     const booking = await Booking.findById(req.params.id);
@@ -136,7 +136,7 @@ router.patch('/:id/complete', async (req, res) => {
       return res.status(400).json({ message: 'Invalid completion code' });
     }
     
-    const price = parseFloat((booking.totalPrice || "0").replace(/[^0-9.]/g, '')) || 0;
+    const price = parseFloat(String(booking.totalPrice || "0").replace(/[^0-9.]/g, '')) || 0;
     const platformCommission = price * 0.18;
     const workerEarnings = price * 0.82;
     
