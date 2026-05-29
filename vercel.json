@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/map.html",
+      "destination": "/map.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
