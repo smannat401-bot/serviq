@@ -128,6 +128,8 @@ export default function ClientDashboard() {
       .catch(err => console.error(err));
 
     fetchBookings();
+    const intervalId = setInterval(fetchBookings, 3000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchConversations = async () => {

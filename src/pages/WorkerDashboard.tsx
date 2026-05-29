@@ -182,6 +182,10 @@ export default function WorkerDashboard() {
         // Add to notifications
         setNotifications(prev => [data.notification, ...prev]);
         // Visual cue or sound could be added here
+        try {
+          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+          audio.play().catch(e => console.log('Audio autoplay prevented:', e));
+        } catch(e) {}
       });
 
       return () => {
@@ -264,6 +268,8 @@ export default function WorkerDashboard() {
         .catch(err => console.error(err));
 
       fetchBookings();
+      const intervalId = setInterval(fetchBookings, 3000);
+      return () => clearInterval(intervalId);
     }
   }, []);
 
