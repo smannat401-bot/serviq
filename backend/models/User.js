@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['client', 'worker', 'admin'], required: true },
   phone: { type: String },
+  address: { type: String },
   walletBalance: { type: Number, default: 0 },
   
   // Worker specific fields

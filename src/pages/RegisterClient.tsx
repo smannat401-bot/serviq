@@ -7,7 +7,7 @@ import PasswordInput from '../components/ui/PasswordInput';
 import { GoogleLogin } from '@react-oauth/google';
 
 export default function RegisterClient() {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', address: '' });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState('');
@@ -189,6 +189,26 @@ export default function RegisterClient() {
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
               className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none transition-all text-brand-black dark:text-white" placeholder="john@example.com" 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+            <input 
+              type="tel" 
+              required
+              value={formData.phone}
+              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none transition-all text-brand-black dark:text-white" placeholder="+91 9876543210" 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Address</label>
+            <textarea 
+              required
+              rows={2}
+              value={formData.address}
+              onChange={(e) => setFormData({...formData, address: e.target.value})}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none transition-all text-brand-black dark:text-white resize-none" placeholder="123 Main St, City, State" 
             />
           </div>
 
