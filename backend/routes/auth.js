@@ -341,8 +341,26 @@ router.post('/forgot-password', async (req, res) => {
       },
     });
 
-    // Email send bypassed COMPLETELY to prevent SMTP hang/delay
-    console.log('Email send bypassed for speed. Master OTP (0000) active.');
+    // Send email
+    await transporter.sendMail({
+      from: `"SERVIC Marketplace" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your password reset OTP is: ${otpCode}. It is valid for 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <h2 style="color: #3b82f6; text-align: center;">SERVIC Marketplace</h2>
+          <p style="font-size: 16px; color: #4b5563;">Hello,</p>
+          <p style="font-size: 16px; color: #4b5563;">You requested a password reset. Use the OTP below to proceed:</p>
+          <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
+          </div>
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">&copy; 2026 SERVIC Marketplace. All rights reserved.</p>
+        </div>
+      `,
+    });
 
     res.json({ message: 'OTP sent successfully to email' });
   } catch (error) {
@@ -411,7 +429,7 @@ router.post('/verify-otp', async (req, res) => {
     const { email, otp } = req.body;
     
     const record = await OTP.findOne({ email, otp });
-    if (!record && otp !== '0000') {
+    if (!record) {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
@@ -428,7 +446,7 @@ router.post('/reset-password', async (req, res) => {
     
     // Double check OTP
     const record = await OTP.findOne({ email, otp });
-    if (!record && otp !== '0000') {
+    if (!record) {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
