@@ -825,7 +825,7 @@ export default function WorkerDashboard() {
                                 <CheckCircle size={16} /> On My Way
                               </button>
                               <a href={`tel:${booking.client?.phone || '0000000000'}`} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-brand-black dark:bg-white text-white dark:text-brand-black rounded-xl text-sm font-bold shadow-lg transition-colors">
-                                <Phone size={16} className="text-brand-gold" /> Call Client
+                                <Phone size={16} className="text-brand-gold" /> {booking.client?.phone ? `Call ${booking.client.phone}` : 'Call Client'}
                               </a>
                               <button onClick={() => setSelectedBookingForCancellation(booking._id)} className="flex-1 md:flex-none p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors" title="Cancel Job">
                                 <Trash2 size={18} />
