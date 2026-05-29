@@ -126,6 +126,9 @@ export default function RegisterWorker() {
     }
   };
 
+  const predefinedSkills = ['Electrician', 'Plumber', 'AC Repair', 'Carpenter'];
+  const isOtherSkill = formData.skill === 'Other' || (!predefinedSkills.includes(formData.skill) && formData.skill !== '');
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-6">
       <motion.div
@@ -208,15 +211,31 @@ export default function RegisterWorker() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Skill / Category</label>
-              <select value={formData.skill} onChange={e => setFormData({...formData, skill: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-gold outline-none transition-all text-brand-black dark:text-white">
-                <option value="Electrician">Electrician</option>
-                <option value="Plumber">Plumber</option>
-                <option value="AC Repair">AC Repair</option>
-                <option value="Carpenter">Carpenter</option>
-                <option value="Other">Other</option>
-              </select>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Skill / Category</label>
+                <select value={isOtherSkill ? 'Other' : formData.skill} onChange={e => setFormData({...formData, skill: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-gold outline-none transition-all text-brand-black dark:text-white">
+                  <option value="Electrician">Electrician</option>
+                  <option value="Plumber">Plumber</option>
+                  <option value="AC Repair">AC Repair</option>
+                  <option value="Carpenter">Carpenter</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              
+              {isOtherSkill && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Specify your Category <span className="text-red-500">*</span></label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={formData.skill === 'Other' ? '' : formData.skill}
+                    onChange={e => setFormData({...formData, skill: e.target.value})} 
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-gold outline-none transition-all text-brand-black dark:text-white" 
+                    placeholder="e.g. Painter, Cleaning, etc." 
+                  />
+                </motion.div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Years of Experience</label>
