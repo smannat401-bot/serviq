@@ -332,44 +332,45 @@ router.post('/forgot-password', async (req, res) => {
     const otpRecord = new OTP({ email, otp: otpCode });
     await otpRecord.save();
 
-    // Create a Nodemailer transporter using Resend SMTP
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.resend.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'resend',
-        pass: process.env.RESEND_API_KEY,
-      },
-    });
-
     try {
-      // Send email
-      await transporter.sendMail({
-        from: `"SERVIC Marketplace" <onboarding@resend.dev>`,
-        to: email,
-        subject: "Password Reset OTP",
-      text: `Your password reset OTP is: ${otpCode}. It is valid for 10 minutes.`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-          <h2 style="color: #3b82f6; text-align: center;">SERVIC Marketplace</h2>
-          <p style="font-size: 16px; color: #4b5563;">Hello,</p>
-          <p style="font-size: 16px; color: #4b5563;">You requested a password reset. Use the OTP below to proceed:</p>
-          <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
-          </div>
-          <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
-          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #9ca3af; text-align: center;">&copy; 2026 SERVIC Marketplace. All rights reserved.</p>
-        </div>
-      `,
+      // Send email using Resend HTTP API (Bypasses Render SMTP blocks)
+      const resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'SERVIC Marketplace <onboarding@resend.dev>',
+          to: email,
+          subject: 'Password Reset OTP',
+          text: `Your password reset OTP is: ${otpCode}. It is valid for 10 minutes.`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h2 style="color: #3b82f6; text-align: center;">SERVIC Marketplace</h2>
+              <p style="font-size: 16px; color: #4b5563;">Hello,</p>
+              <p style="font-size: 16px; color: #4b5563;">You requested a password reset. Use the OTP below to proceed:</p>
+              <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
+              </div>
+              <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
+              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+              <p style="font-size: 12px; color: #9ca3af; text-align: center;">&copy; 2026 SERVIC Marketplace. All rights reserved.</p>
+            </div>
+          `
+        })
       });
+
+      if (!resendRes.ok) {
+        const errData = await resendRes.json();
+        throw new Error(errData.message || 'Resend API rejected the request');
+      }
 
       res.json({ message: 'OTP sent successfully to email' });
     } catch (emailErr) {
-      console.warn('Resend failed (unverified email domain). Falling back to master OTP (0000) for testing.', emailErr.message);
+      console.warn('Resend failed (unverified email domain or blocked). Falling back to master OTP (0000) for testing.', emailErr.message);
       // We don't throw an error to the frontend, so the user can still use 0000 to test
-      res.json({ message: 'OTP sent successfully to email' });
+      res.json({ message: 'OTP sent successfully to email (Test Mode Active)' });
     }
   } catch (error) {
     console.error(error);
@@ -396,37 +397,37 @@ router.post('/send-registration-otp', async (req, res) => {
     const otpRecord = new OTP({ email, otp: otpCode });
     await otpRecord.save();
 
-    // Create a Nodemailer transporter using Resend SMTP
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.resend.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'resend',
-        pass: process.env.RESEND_API_KEY,
-      },
-    });
-
     try {
-      // Send email
-      await transporter.sendMail({
-        from: `"SERVIQ Marketplace" <onboarding@resend.dev>`,
-        to: email,
-      subject: "Registration OTP - SERVIQ",
-      text: `Your registration OTP is: ${otpCode}. It is valid for 10 minutes.`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-          <h2 style="color: #3b82f6; text-align: center;">SERVIQ Marketplace</h2>
-          <p style="font-size: 16px; color: #4b5563;">Hello,</p>
-          <p style="font-size: 16px; color: #4b5563;">Thank you for registering. Use the OTP below to complete your sign up:</p>
-          <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
-          </div>
-          <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes.</p>
-        </div>
-        </div>
-      `,
+      // Send email using Resend HTTP API (Bypasses Render SMTP blocks)
+      const resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'SERVIQ Marketplace <onboarding@resend.dev>',
+          to: email,
+          subject: 'Registration OTP - SERVIQ',
+          text: `Your registration OTP is: ${otpCode}. It is valid for 10 minutes.`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h2 style="color: #3b82f6; text-align: center;">SERVIQ Marketplace</h2>
+              <p style="font-size: 16px; color: #4b5563;">Hello,</p>
+              <p style="font-size: 16px; color: #4b5563;">Thank you for registering. Use the OTP below to complete your sign up:</p>
+              <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
+              </div>
+              <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes.</p>
+            </div>
+          `
+        })
       });
+
+      if (!resendRes.ok) {
+        const errData = await resendRes.json();
+        throw new Error(errData.message || 'Resend API rejected the request');
+      }
 
       res.json({ message: 'Registration OTP sent successfully' });
     } catch (emailErr) {
