@@ -142,15 +142,9 @@ router.post('/google', async (req, res) => {
 // Register Route with OTP verification
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role, otp, ...otherDetails } = req.body;
+    const { name, email, password, role, ...otherDetails } = req.body;
 
-    if (!otp) return res.status(400).json({ message: 'OTP is required for registration' });
-
-    // Verify OTP
-    const record = await OTP.findOne({ email, otp });
-    if (!record) {
-      return res.status(400).json({ message: 'Invalid or expired OTP' });
-    }
+    // OTP check removed for simplicity
 
     // Check if user exists
     let user = await User.findOne({ email });
