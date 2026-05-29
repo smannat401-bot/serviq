@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-brand-white text-brand-black font-sans antialiased transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-brand-darkBlue text-brand-white;
+  }
+
+  ::selection {
+    @apply bg-brand-electricBlue text-white;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+  .dark .glass {
+    @apply bg-brand-darkBlue/70 border-white/10;
+  }
+  
+  .glass-card {
+    @apply bg-white/50 backdrop-blur-lg border border-white/30 shadow-xl rounded-2xl;
+  }
+  .dark .glass-card {
+    @apply bg-brand-darkBlue/50 border-white/10;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-electricBlue to-brand-gold;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-silver/50 rounded-full transition-colors;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand-electricBlue;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-brand-silver/20;
+}

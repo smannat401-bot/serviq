@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-brand-white text-brand-black font-sans antialiased transition-colors duration-300;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .dark body {
+    @apply bg-[#050505] text-brand-white;
+  }
+
+  ::selection {
+    @apply bg-brand-electricBlue text-white;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+  }
+  .dark .glass {
+    @apply bg-black/40 border-white/5;
+  }
+  
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-2xl border border-white/40 shadow-2xl rounded-[2rem] transition-all duration-500;
+  }
+  .dark .glass-card {
+    @apply bg-white/5 border-white/10;
+  }
+
+  .glass-card:hover {
+    @apply transform -translate-y-2 shadow-[0_20px_50px_rgba(0,0,0,0.1)];
+  }
+  .dark .glass-card:hover {
+    @apply shadow-[0_20px_50px_rgba(255,255,255,0.05)];
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-electricBlue via-[#8B5CF6] to-brand-gold bg-[length:200%_auto] animate-gradient-flow;
+  }
+
+  .btn-primary {
+    @apply px-8 py-4 rounded-full bg-brand-black text-white dark:bg-brand-white dark:text-brand-black font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2;
+  }
+
+  .section-spacing {
+    @apply py-24 md:py-32;
+  }
+}
+
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-gradient-flow {
+  animation: gradient-flow 6s ease infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-silver/30 rounded-full border-4 border-transparent bg-clip-content hover:bg-brand-electricBlue/50 transition-all;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-brand-silver/10;
+}
+
+/* --- Geoapify Autocomplete Overrides --- */
+
+.geoapify-autocomplete-input {
+  width: 100% !important;
+  padding-left: 2.5rem !important; /* Space for MapPin */
+  padding-right: 1rem !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  border-radius: 0.75rem !important;
+  background-color: #f9fafb !important; /* gray-50 */
+  border: 1px solid #e5e7eb !important; /* gray-200 */
+  outline: none !important;
+  color: #111827 !important; /* gray-900 */
+  font-family: inherit !important;
+  font-size: 0.875rem !important; /* text-sm */
+  transition: all 0.2s ease-in-out !important;
+}
+
+.dark .geoapify-autocomplete-input {
+  background-color: #0f172a !important; /* slate-900 */
+  border-color: #1f2937 !important; /* gray-800 */
+  color: #f9fafb !important; /* gray-50 */
+}
+
+.geoapify-autocomplete-input:focus {
+  border-color: #3b82f6 !important; /* brand-electricBlue */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+}
+
+.geoapify-autocomplete-items {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 99999 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.75rem !important;
+  margin-top: 0.5rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  max-height: 250px !important;
+  overflow-y: auto !important;
+}
+
+.dark .geoapify-autocomplete-items {
+  background-color: #0f172a !important; 
+  border-color: #1f2937 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.geoapify-autocomplete-item {
+  padding: 0.75rem 1rem !important;
+  cursor: pointer !important;
+  color: #374151 !important; /* gray-700 */
+  border-bottom: 1px solid #f3f4f6 !important; /* gray-100 */
+  font-size: 0.875rem !important;
+  text-align: left !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.geoapify-autocomplete-item:last-child {
+  border-bottom: none !important;
+}
+
+.dark .geoapify-autocomplete-item {
+  color: #d1d5db !important; /* gray-300 */
+  border-bottom-color: #1e293b !important; /* slate-800 */
+}
+
+.geoapify-autocomplete-item:hover, .geoapify-autocomplete-item.active {
+  background-color: #eff6ff !important; /* blue-50 */
+  color: #1d4ed8 !important; /* blue-700 */
+}
+
+.dark .geoapify-autocomplete-item:hover, .dark .geoapify-autocomplete-item.active {
+  background-color: #1e293b !important; /* slate-800 */
+  color: #60a5fa !important; /* blue-400 */
+}
+
+.geoapify-autocomplete-items .secondary-part {
+  margin-left: 0.5rem !important;
+  font-size: 0.75rem !important;
+  color: #9ca3af !important; /* gray-400 */
+}
+
+.dark .geoapify-autocomplete-items .secondary-part {
+  color: #6b7280 !important; /* gray-500 */
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Booking Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Mapbox GL CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    html, body, #map {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #f8fafc;
+    }
+    /* Custom premium styling for Mapbox markers */
+    .custom-marker-user {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: #ef4444;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .custom-marker-user:hover {
+      transform: scale(1.15);
+    }
+    .custom-marker-worker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: #3b82f6;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .custom-marker-worker:hover {
+      transform: scale(1.15);
+    }
+    .mapboxgl-popup-content {
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Mapbox GL JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+  <script>
+    // Get query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('accessToken') || 'YOUR_MAPBOX_TOKEN_HERE';
+    const wlat = parseFloat(urlParams.get('wlat'));
+    const wlon = parseFloat(urlParams.get('wlon'));
+    const clat = parseFloat(urlParams.get('clat'));
+    const clon = parseFloat(urlParams.get('clon'));
+
+    // Initialize Mapbox
+    mapboxgl.accessToken = accessToken;
+    
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [clon || 75.857, clat || 30.901],
+      zoom: 13,
+      attributionControl: false
+    });
+
+    const markers = [];
+
+    // Add Client / User marker
+    if (!isNaN(clat) && !isNaN(clon)) {
+      const el = document.createElement('div');
+      el.className = 'custom-marker-user';
+      el.innerHTML = '🏠';
+      
+      const userMarker = new mapboxgl.Marker(el)
+        .setLngLat([clon, clat])
+        .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<b>Your Location</b><br>Service Address'))
+        .addTo(map);
+      
+      markers.push(userMarker);
+    }
+
+    // Add Worker marker
+    if (!isNaN(wlat) && !isNaN(wlon)) {
+      const el = document.createElement('div');
+      el.className = 'custom-marker-worker';
+      el.innerHTML = '💼';
+
+      const workerMarker = new mapboxgl.Marker(el)
+        .setLngLat([wlon, wlat])
+        .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<b>Worker Location</b><br>Service Provider'))
+        .addTo(map);
+      
+      markers.push(workerMarker);
+    }
+
+    // Draw route and fit bounds
+    if (!isNaN(clat) && !isNaN(clon) && !isNaN(wlat) && !isNaN(wlon)) {
+      // Fit bounds to show both locations
+      const bounds = new mapboxgl.LngLatBounds()
+        .extend([clon, clat])
+        .extend([wlon, wlat]);
+      map.fitBounds(bounds, { padding: 60 });
+
+      // Fetch precise road route from Mapbox Directions API
+      fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${wlon},${wlat};${clon},${clat}?access_token=${accessToken}&geometries=geojson&overview=full`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.routes && data.routes.length > 0) {
+            const routeGeometry = data.routes[0].geometry;
+            
+            map.on('load', () => {
+              map.addSource('route', {
+                'type': 'geojson',
+                'data': {
+                  'type': 'Feature',
+                  'properties': {},
+                  'geometry': routeGeometry
+                }
+              });
+              
+              // Stunning glowing route path
+              map.addLayer({
+                'id': 'route',
+                'type': 'line',
+                'source': 'route',
+                'layout': {
+                  'line-join': 'round',
+                  'line-cap': 'round'
+                },
+                'paint': {
+                  'line-color': '#3b82f6',
+                  'line-width': 6,
+                  'line-opacity': 0.85
+                }
+              });
+            });
+          } else {
+            drawStraightLine();
+          }
+        })
+        .catch(err => {
+          console.error('Mapbox directions routing failed:', err);
+          drawStraightLine();
+        });
+    }
+
+    function drawStraightLine() {
+      map.on('load', () => {
+        map.addSource('route', {
+          'type': 'geojson',
+          'data': {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': [[wlon, wlat], [clon, clat]]
+            }
+          }
+        });
+        
+        map.addLayer({
+          'id': 'route',
+          'type': 'line',
+          'source': 'route',
+          'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          'paint': {
+            'line-color': '#3b82f6',
+            'line-width': 4,
+            'line-dasharray': [2, 2],
+            'line-opacity': 0.8
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
