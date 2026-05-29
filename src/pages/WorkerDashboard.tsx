@@ -824,9 +824,15 @@ export default function WorkerDashboard() {
                               <button onClick={() => handleUpdateStatus(booking._id, 'On The Way')} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-500/10 hover:bg-blue-500 hover:text-white text-blue-500 rounded-xl text-sm font-bold shadow-sm transition-colors border border-blue-500/20">
                                 <CheckCircle size={16} /> On My Way
                               </button>
-                              <a href={`tel:${booking.client?.phone || '0000000000'}`} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-brand-black dark:bg-white text-white dark:text-brand-black rounded-xl text-sm font-bold shadow-lg transition-colors">
-                                <Phone size={16} className="text-brand-gold" /> {booking.client?.phone ? `Call ${booking.client.phone}` : 'Call Client'}
-                              </a>
+                              {booking.client?.phone ? (
+                                <a href={`tel:${booking.client.phone}`} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-brand-black dark:bg-white text-white dark:text-brand-black rounded-xl text-sm font-bold shadow-lg transition-colors">
+                                  <Phone size={16} className="text-brand-gold" /> Call {booking.client.phone}
+                                </a>
+                              ) : (
+                                <div className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-500 rounded-xl text-sm font-bold cursor-not-allowed">
+                                  <Phone size={16} className="text-gray-400" /> No Phone
+                                </div>
+                              )}
                               <button onClick={() => setSelectedBookingForCancellation(booking._id)} className="flex-1 md:flex-none p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors" title="Cancel Job">
                                 <Trash2 size={18} />
                               </button>
