@@ -15,7 +15,10 @@ export default function RegisterClient() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // OTP States Removed
+  // OTP States
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [sendingOtp, setSendingOtp] = useState(false);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -41,7 +44,16 @@ export default function RegisterClient() {
       return;
     }
 
-    // Bypass OTP
+    if (!otpSent) {
+      await handleSendOTP();
+      return;
+    }
+
+    if (!otp || otp.length !== 4) {
+      setError('Please enter a valid 4-digit OTP. / कृपया सही 4-digit OTP डालें।');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -62,7 +74,7 @@ export default function RegisterClient() {
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, role: 'client', profilePhoto: uploadedPhotoUrl })
+        body: JSON.stringify({ ...formData, role: 'client', profilePhoto: uploadedPhotoUrl, otp })
       });
 
       const data = await response.json();
@@ -85,7 +97,27 @@ export default function RegisterClient() {
     }
   };
 
-  // handleSendOTP removed
+  const handleSendOTP = async () => {
+    setSendingOtp(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_URL}/api/auth/send-registration-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send OTP');
+      }
+      setOtpSent(true);
+      alert('OTP sent to your email! Please check your inbox.');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSendingOtp(false);
+    }
+  };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
@@ -227,14 +259,27 @@ export default function RegisterClient() {
             id="confirm-password"
           />
 
-            {/* OTP Section Removed */}
+            {otpSent && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Enter OTP</label>
+                <input
+                  type="text"
+                  maxLength={4}
+                  required
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none text-brand-black dark:text-white"
+                  placeholder="4-digit code"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+            )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || sendingOtp}
               className="w-full bg-brand-electricBlue hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-50"
             >
-              {loading ? 'Processing...' : 'Register Now'}
+              {loading || sendingOtp ? 'Processing...' : otpSent ? 'Verify & Sign Up' : 'Send OTP & Sign Up'}
             </button>
           </form>
           
