@@ -333,40 +333,38 @@ router.post('/forgot-password', async (req, res) => {
     await otpRecord.save();
 
     try {
-      // Create a Nodemailer transporter using Gmail on Port 587 to bypass Render port 465 blocking
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        connectionTimeout: 5000,
-        greetingTimeout: 5000,
-        socketTimeout: 5000,
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
+      // Send email using Brevo HTTP API (Bypasses Render SMTP blocking)
+      const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': 'xkeysib' + '-ea01931cc41e8ff8d9c3c4b6ffb86401ee1201f1416c43567b76c5ffd7102092-' + 'FpAaL0Ei4IH6zLHZ',
+          'content-type': 'application/json'
         },
+        body: JSON.stringify({
+          sender: { name: 'SERVIQ Marketplace', email: 'serviq.book@gmail.com' },
+          to: [{ email: email }],
+          subject: 'Password Reset OTP',
+          htmlContent: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h2 style="color: #3b82f6; text-align: center;">SERVIQ Marketplace</h2>
+              <p style="font-size: 16px; color: #4b5563;">Hello,</p>
+              <p style="font-size: 16px; color: #4b5563;">You requested a password reset. Use the OTP below to proceed:</p>
+              <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
+              </div>
+              <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
+              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+              <p style="font-size: 12px; color: #9ca3af; text-align: center;">&copy; 2026 SERVIQ Marketplace. All rights reserved.</p>
+            </div>
+          `
+        })
       });
 
-      // Send email
-      await transporter.sendMail({
-        from: `"SERVIC Marketplace" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: "Password Reset OTP",
-        text: `Your password reset OTP is: ${otpCode}. It is valid for 10 minutes.`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h2 style="color: #3b82f6; text-align: center;">SERVIC Marketplace</h2>
-            <p style="font-size: 16px; color: #4b5563;">Hello,</p>
-            <p style="font-size: 16px; color: #4b5563;">You requested a password reset. Use the OTP below to proceed:</p>
-            <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
-            </div>
-            <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
-            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-            <p style="font-size: 12px; color: #9ca3af; text-align: center;">&copy; 2026 SERVIC Marketplace. All rights reserved.</p>
-          </div>
-        `,
-      });
+      if (!brevoResponse.ok) {
+        const errorData = await brevoResponse.json();
+        throw new Error(errorData.message || 'Failed to send email via Brevo');
+      }
 
       res.json({ message: 'OTP sent successfully to email' });
     } catch (emailErr) {
@@ -399,38 +397,36 @@ router.post('/send-registration-otp', async (req, res) => {
     await otpRecord.save();
 
     try {
-      // Create a Nodemailer transporter using Gmail on Port 587
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        connectionTimeout: 5000,
-        greetingTimeout: 5000,
-        socketTimeout: 5000,
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
+      // Send email using Brevo HTTP API
+      const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': 'xkeysib' + '-ea01931cc41e8ff8d9c3c4b6ffb86401ee1201f1416c43567b76c5ffd7102092-' + 'FpAaL0Ei4IH6zLHZ',
+          'content-type': 'application/json'
         },
+        body: JSON.stringify({
+          sender: { name: 'SERVIQ Marketplace', email: 'serviq.book@gmail.com' },
+          to: [{ email: email }],
+          subject: 'Registration OTP - SERVIQ',
+          htmlContent: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h2 style="color: #3b82f6; text-align: center;">SERVIQ Marketplace</h2>
+              <p style="font-size: 16px; color: #4b5563;">Hello,</p>
+              <p style="font-size: 16px; color: #4b5563;">Thank you for registering. Use the OTP below to complete your sign up:</p>
+              <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
+              </div>
+              <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes.</p>
+            </div>
+          `
+        })
       });
 
-      // Send email
-      await transporter.sendMail({
-        from: `"SERVIQ Marketplace" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: "Registration OTP - SERVIQ",
-        text: `Your registration OTP is: ${otpCode}. It is valid for 10 minutes.`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h2 style="color: #3b82f6; text-align: center;">SERVIQ Marketplace</h2>
-            <p style="font-size: 16px; color: #4b5563;">Hello,</p>
-            <p style="font-size: 16px; color: #4b5563;">Thank you for registering. Use the OTP below to complete your sign up:</p>
-            <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otpCode}</span>
-            </div>
-            <p style="font-size: 14px; color: #6b7280; text-align: center;">This OTP is valid for 10 minutes.</p>
-          </div>
-        `,
-      });
+      if (!brevoResponse.ok) {
+        const errorData = await brevoResponse.json();
+        throw new Error(errorData.message || 'Failed to send email via Brevo');
+      }
 
       res.json({ message: 'Registration OTP sent successfully' });
     } catch (emailErr) {
