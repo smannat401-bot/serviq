@@ -51,8 +51,8 @@ export default function Statistics() {
       {/* Decorative Blur */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-brand-electricBlue/10 via-transparent to-transparent opacity-60"></div>
       
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <div className="container mx-auto px-4 lg:px-6 relative z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-12">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.id}
@@ -60,12 +60,12 @@ export default function Statistics() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, delay: index * 0.1 }}
-              className="group flex flex-col items-center p-8 rounded-[2.5rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:border-brand-electricBlue/30 transition-all duration-500"
+              className="group flex flex-col items-center p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:border-brand-electricBlue/30 transition-all duration-500"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-electricBlue via-[#8B5CF6] to-brand-gold flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                <stat.icon size={32} className="text-white" />
+              <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-gradient-to-br from-brand-electricBlue via-[#8B5CF6] to-brand-gold flex items-center justify-center mb-6 lg:mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                <stat.icon className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
               </div>
-              <div className="text-5xl md:text-6xl font-black text-white mb-3 tracking-tighter">
+              <div className="text-3xl md:text-4xl lg:text-6xl font-black text-white mb-2 lg:mb-3 tracking-tighter">
                 <Counter value={stat.value} suffix={stat.suffix} />
               </div>
               <div className="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs">

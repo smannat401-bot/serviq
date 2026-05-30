@@ -427,12 +427,14 @@ export default function BookingModal({ isOpen, onClose, workerId, workerName, se
 
 
   return (
-    <div className="fixed inset-0 bg-brand-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-brand-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="glass-card w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-card w-full max-w-lg overflow-hidden flex flex-col rounded-t-3xl md:rounded-3xl max-h-[95vh] md:max-h-[90vh] relative"
       >
+        {/* Mobile Drag Indicator */}
+        <div className="md:hidden absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full z-20"></div>
         {/* Header */}
         <div className="flex justify-between items-center p-6">
           <h2 className="text-xl font-bold text-brand-black dark:text-white">

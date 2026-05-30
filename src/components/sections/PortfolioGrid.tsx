@@ -36,14 +36,14 @@ const projects = [
 export default function PortfolioGrid() {
   return (
     <section className="section-spacing bg-brand-white dark:bg-[#050505]">
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 lg:mb-16 gap-4 lg:gap-6">
           <div className="max-w-2xl">
             <motion.h2
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-6xl font-black text-brand-black dark:text-white mb-6"
+              className="text-3xl md:text-4xl lg:text-6xl font-black text-brand-black dark:text-white mb-4 lg:mb-6"
             >
               Excellence in <br />
               <span className="text-gradient">Every Project.</span>
@@ -62,13 +62,13 @@ export default function PortfolioGrid() {
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="hidden md:block"
+            className="hidden lg:block"
           >
             <button className="btn-primary px-10">View Full Gallery</button>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {projects.map((project, index) => (
             <motion.div
               key={index}
@@ -76,7 +76,7 @@ export default function PortfolioGrid() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="group relative h-[450px] rounded-[2.5rem] overflow-hidden shadow-2xl"
+              className="group relative h-[350px] lg:h-[450px] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-2xl"
             >
               <img
                 src={project.image}
@@ -85,11 +85,11 @@ export default function PortfolioGrid() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
               
-              <div className="absolute bottom-0 left-0 right-0 p-10 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <span className="inline-block px-4 py-1 rounded-full bg-brand-electricBlue text-white text-xs font-bold uppercase tracking-widest mb-4">
+              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-10 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                <span className="inline-block px-3 py-1 lg:px-4 lg:py-1 rounded-full bg-brand-electricBlue text-white text-[10px] lg:text-xs font-bold uppercase tracking-widest mb-3 lg:mb-4">
                   {project.category}
                 </span>
-                <h3 className="text-3xl font-black text-white">
+                <h3 className="text-2xl lg:text-3xl font-black text-white">
                   {project.title}
                 </h3>
               </div>
@@ -97,7 +97,7 @@ export default function PortfolioGrid() {
           ))}
         </div>
 
-        <div className="mt-12 md:hidden">
+        <div className="mt-8 lg:hidden">
            <button className="btn-primary w-full">View Full Gallery</button>
         </div>
       </div>

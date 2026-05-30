@@ -21,8 +21,13 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import SplashScreen from './components/ui/SplashScreen';
 
-
 import { SocketProvider } from './context/SocketContext';
+import { usePushNotification } from './hooks/usePushNotification';
+
+function PushInit() {
+  usePushNotification();
+  return null;
+}
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -48,6 +53,7 @@ function App() {
   return (
     <SocketProvider>
     <Router>
+      <PushInit />
       <SplashScreen isVisible={showSplash} />
       <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
         <Routes>

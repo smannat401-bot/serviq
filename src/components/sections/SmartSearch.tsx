@@ -23,7 +23,7 @@ export default function SmartSearch() {
   };
 
   return (
-    <section className="relative -mt-20 z-20 pb-20 px-6">
+    <section className="relative mt-0 lg:-mt-20 z-20 pb-10 lg:pb-20 px-4 lg:px-6">
       <div className="container mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -32,7 +32,7 @@ export default function SmartSearch() {
           transition={{ duration: 0.6 }}
           className="max-w-4xl mx-auto glass-card p-6 rounded-3xl"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Input */}
             <div className="flex-1 relative">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -48,7 +48,7 @@ export default function SmartSearch() {
             </div>
 
             {/* Location Input */}
-            <div className="flex-1 relative hidden sm:block">
+            <div className="flex-1 relative block">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                 <MapPin className="text-gray-400" size={20} />
               </div>

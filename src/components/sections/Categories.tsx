@@ -36,13 +36,13 @@ export default function Categories() {
   };
 
   return (
-    <section className="py-20 px-6 bg-gray-50/50 dark:bg-[#080d1a]">
+    <section className="py-10 lg:py-20 px-4 lg:px-6 bg-gray-50/50 dark:bg-[#080d1a]">
       <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-brand-black dark:text-white mb-4">
+        <div className="text-center mb-10 lg:mb-16">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-black dark:text-white mb-4">
             Explore <span className="text-gradient">Categories</span>
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Find the right professional for any repair job around your home or office.
           </p>
         </div>
@@ -52,19 +52,19 @@ export default function Categories() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6"
+          className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6"
         >
           {categories.map((category) => (
             <motion.a
               key={category.name}
               href={`/explore?category=${encodeURIComponent(category.name)}`}
               variants={item}
-              className="group flex flex-col items-center justify-center p-6 bg-white dark:bg-[#0f172a] rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-brand-electricBlue/50 hover:shadow-xl hover:shadow-brand-electricBlue/10 transition-all duration-300"
+              className="group flex flex-col items-center justify-center p-4 lg:p-6 bg-white dark:bg-[#0f172a] rounded-2xl lg:rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-brand-electricBlue/50 hover:shadow-xl hover:shadow-brand-electricBlue/10 transition-all duration-300"
             >
-              <div className={`w-16 h-16 rounded-2xl ${category.bg} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
-                <category.icon className={`${category.color}`} size={32} strokeWidth={1.5} />
+              <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl ${category.bg} flex items-center justify-center mb-3 lg:mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
+                <category.icon className={`${category.color} w-6 h-6 lg:w-8 lg:h-8`} strokeWidth={1.5} />
               </div>
-              <h3 className="text-sm font-semibold text-center text-gray-800 dark:text-gray-200 group-hover:text-brand-electricBlue transition-colors">
+              <h3 className="text-xs lg:text-sm font-semibold text-center text-gray-800 dark:text-gray-200 group-hover:text-brand-electricBlue transition-colors">
                 {category.name}
               </h3>
             </motion.a>

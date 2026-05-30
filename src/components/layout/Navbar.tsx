@@ -91,7 +91,7 @@ export default function Navbar({ darkMode, toggleDarkMode }: NavbarProps) {
         </nav>
 
         {/* Actions */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
           <div className="flex items-center gap-2 mr-2">
             <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-600 dark:text-gray-300">
               <Search size={18} />
@@ -142,7 +142,7 @@ export default function Navbar({ darkMode, toggleDarkMode }: NavbarProps) {
         </div>
 
         {/* Mobile Menu Toggle */}
-        <div className="md:hidden flex items-center gap-3">
+        <div className="lg:hidden flex items-center gap-3">
           <button
             onClick={toggleDarkMode}
             className="p-2.5 rounded-full text-gray-600 dark:text-gray-300"
@@ -165,7 +165,7 @@ export default function Navbar({ darkMode, toggleDarkMode }: NavbarProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white dark:bg-brand-darkBlue border-t border-gray-100 dark:border-gray-800 overflow-hidden"
+            className="lg:hidden bg-white dark:bg-brand-darkBlue border-t border-gray-100 dark:border-gray-800 overflow-hidden"
           >
             <div className="container mx-auto px-6 py-4 flex flex-col gap-4">
               {navLinks.map((link) => (

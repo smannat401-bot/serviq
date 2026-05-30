@@ -55,13 +55,15 @@ export default function CancellationModal({ isOpen, onClose, bookingId, onSucces
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-brand-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-brand-black/60 backdrop-blur-sm z-[60] flex items-end md:items-center justify-center p-0 md:p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="glass-card w-full max-w-md overflow-hidden flex flex-col"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            className="glass-card w-full max-w-md overflow-hidden flex flex-col rounded-t-3xl md:rounded-3xl"
           >
+            {/* Mobile Drag Indicator */}
+            <div className="md:hidden w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full mx-auto mt-4 mb-0"></div>
             <div className="flex justify-between items-center p-6">
               <h2 className="text-xl font-bold text-brand-black dark:text-white">Cancel Booking</h2>
               <button onClick={onClose} className="text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors">

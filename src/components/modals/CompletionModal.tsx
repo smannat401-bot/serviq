@@ -55,12 +55,14 @@ export default function CompletionModal({ isOpen, onClose, bookingId, onSuccess 
   };
 
   return (
-    <div className="fixed inset-0 bg-brand-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-brand-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="glass-card w-full max-w-md overflow-hidden flex flex-col relative"
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-card w-full max-w-md overflow-hidden flex flex-col relative rounded-t-3xl md:rounded-3xl"
       >
+        {/* Mobile Drag Indicator */}
+        <div className="md:hidden w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full mx-auto mt-4 mb-2"></div>
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors">
           <X size={24} />
         </button>

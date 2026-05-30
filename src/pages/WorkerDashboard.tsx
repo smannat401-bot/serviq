@@ -3,13 +3,14 @@ import { motion } from 'framer-motion';
 import {
   Briefcase, IndianRupee, Star, Calendar,
   MessageSquare, Bell, CheckCircle, XCircle,
-  Plus, Tag, Trash2, User, MapPin, Clock, Edit3, LogOut, Phone, Upload, Trash, AlertTriangle, ShieldOff, Info
+  Plus, Tag, Trash2, User, MapPin, Clock, Edit3, LogOut, Phone, Upload, Trash, AlertTriangle, ShieldOff, Info, ArrowLeft
 } from 'lucide-react';
 
 
 
 import CompletionModal from '../components/modals/CompletionModal';
 import CancellationModal from '../components/modals/CancellationModal';
+import IncomingBookingModal from '../components/modals/IncomingBookingModal';
 import HonorScoreMeter from '../components/HonorScoreMeter';
 import { API_URL, getAuthHeaders } from '../config';
 import { useSocket } from '../context/SocketContext';
@@ -77,6 +78,7 @@ export default function WorkerDashboard() {
   const [selectedMapJob, setSelectedMapJob] = useState<any | null>(null);
   const [selectedBookingForCompletion, setSelectedBookingForCompletion] = useState<string | null>(null);
   const [selectedBookingForCancellation, setSelectedBookingForCancellation] = useState<string | null>(null);
+  const [incomingBooking, setIncomingBooking] = useState<any | null>(null);
   const [bookings, setBookings] = useState<any[]>([]);
 
   // Custom Services State
@@ -181,11 +183,9 @@ export default function WorkerDashboard() {
         setBookings(prev => [data.booking, ...prev]);
         // Add to notifications
         setNotifications(prev => [data.notification, ...prev]);
-        // Visual cue or sound could be added here
-        try {
-          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-          audio.play().catch(e => console.log('Audio autoplay prevented:', e));
-        } catch(e) {}
+        
+        // Show incoming booking modal (which also plays the sound)
+        setIncomingBooking(data.booking);
       });
 
       return () => {
@@ -523,12 +523,12 @@ export default function WorkerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-8 px-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] pt-8 px-4 md:px-6 pb-24 md:pb-8">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
 
-          {/* Sidebar */}
-          <aside className="w-full md:w-64 space-y-2">
+          {/* Desktop Sidebar */}
+          <aside className="hidden md:block w-64 space-y-2 shrink-0">
             <div className="glass-card p-6 mb-6 flex flex-col items-center text-center">
               <div className="relative mb-4">
                 {user.profilePhoto ? (
@@ -1332,9 +1332,11 @@ export default function WorkerDashboard() {
             )}
 
             {activeTab === 'messages' && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-[700px] flex gap-6">
-                <div className="w-1/3 glass-card flex flex-col overflow-hidden">
-                  <div className="p-6 border-b border-gray-100 dark:border-gray-800 font-bold text-xl text-brand-black dark:text-white">Conversations</div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-[calc(100vh-220px)] md:h-[700px] flex gap-0 md:gap-6 relative">
+                
+                {/* Inbox List */}
+                <div className={`w-full md:w-1/3 glass-card flex flex-col overflow-hidden ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
+                  <div className="p-4 md:p-6 border-b border-gray-100 dark:border-gray-800 font-bold text-xl text-brand-black dark:text-white">Conversations</div>
                   <div className="flex-1 overflow-y-auto">
                     {conversations.length === 0 ? (
                       <div className="p-8 text-center text-gray-500">No messages yet.</div>
@@ -1357,12 +1359,16 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                <div className="w-2/3 glass-card flex flex-col overflow-hidden relative">
+                {/* Chat Window */}
+                <div className={`w-full md:w-2/3 glass-card flex flex-col overflow-hidden absolute md:relative inset-0 md:inset-auto z-10 bg-white dark:bg-transparent ${!selectedChat ? 'hidden md:flex' : 'flex'}`}>
                   {selectedChat ? (
                     <>
-                      <div className="p-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0f172a] flex justify-between items-center z-10">
+                      <div className="p-4 md:p-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0f172a] flex justify-between items-center z-10">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-brand-electricBlue/10 flex items-center justify-center text-brand-electricBlue font-bold">
+                          <button onClick={() => setSelectedChat(null)} className="md:hidden p-2 -ml-2 text-gray-500 hover:text-brand-electricBlue">
+                            <ArrowLeft size={20} />
+                          </button>
+                          <div className="w-10 h-10 rounded-full bg-brand-electricBlue/10 flex items-center justify-center text-brand-electricBlue font-bold shrink-0">
                             {selectedChat.otherUser.name.charAt(0)}
                           </div>
                           <div>
@@ -1494,6 +1500,41 @@ export default function WorkerDashboard() {
           onSuccess={fetchBookings}
         />
       )}
+
+      {incomingBooking && (
+        <IncomingBookingModal
+          booking={incomingBooking}
+          onClose={() => setIncomingBooking(null)}
+          onSuccess={fetchBookings}
+        />
+      )}
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 flex overflow-x-auto shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 pb-safe" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <style dangerouslySetInnerHTML={{__html: `nav::-webkit-scrollbar { display: none; }`}} />
+        {[
+          { id: 'overview', label: 'Home', icon: Briefcase },
+          { id: 'wallet', label: 'Earnings', icon: IndianRupee },
+          { id: 'Services', label: 'Services', icon: Tag },
+          { id: 'calendar', label: 'Schedule', icon: Calendar },
+          { id: 'pricing', label: 'Pricing', icon: IndianRupee },
+          { id: 'messages', label: 'Chat', icon: MessageSquare },
+          { id: 'profile', label: 'Profile', icon: User },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`min-w-[72px] flex-1 flex flex-col items-center gap-1 p-3 transition-colors ${
+              activeTab === item.id 
+                ? 'text-brand-electricBlue' 
+                : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            <item.icon size={22} className={activeTab === item.id ? 'fill-brand-electricBlue/20' : ''} />
+            <span className="text-[10px] font-bold truncate w-full text-center">{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

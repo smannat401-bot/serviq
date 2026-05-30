@@ -8,7 +8,7 @@ export default function Hero() {
   const isWorker = user.role === 'worker';
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[100svh] lg:min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -25,7 +25,7 @@ export default function Hero() {
         <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[160px] animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 lg:px-6 relative z-10 w-full">
         <div className="max-w-5xl mx-auto text-center space-y-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -40,7 +40,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-6 py-2 rounded-full glass-card border-brand-electricBlue/20 text-brand-electricBlue dark:text-brand-lightBlue text-sm font-bold tracking-widest uppercase mb-4"
+            className="inline-flex items-center gap-2 px-4 py-2 lg:px-6 lg:py-2 rounded-full glass-card border-brand-electricBlue/20 text-brand-electricBlue dark:text-brand-lightBlue text-xs md:text-sm font-bold tracking-widest uppercase mb-4"
           >
             <Sparkles size={16} className="animate-spin-slow" />
             <span>AI-Driven Service Ecosystem</span>
@@ -50,7 +50,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-8xl font-extrabold tracking-tight text-brand-black dark:text-brand-white leading-[1.1]"
+            className="text-4xl md:text-5xl lg:text-8xl font-extrabold tracking-tight text-brand-black dark:text-brand-white leading-[1.1]"
           >
             Your Vision, <br />
             <span className="text-gradient">Our Expertise.</span>
@@ -60,7 +60,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
           >
             The future of on-demand Services. Connect with elite pros for home, tech, and creative solutions—delivered at the speed of thought.
           </motion.p>
@@ -69,19 +69,19 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10"
+            className="flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-4 lg:gap-6 pt-8 lg:pt-10 w-full px-2 lg:px-0"
           >
             <Link
               to={isWorker ? "/worker-dashboard" : "/explore"}
-              className="btn-primary w-full sm:w-auto"
+              className="btn-primary w-full lg:w-auto"
             >
               {isWorker ? "Partner Dashboard" : "Get Started Now"}
-              <ArrowRight size={22} />
+              <ArrowRight size={22} className="ml-2" />
             </Link>
             {!user?._id && (
               <Link
                 to="/register"
-                className="w-full sm:w-auto px-10 py-4 rounded-full glass font-bold text-lg text-brand-black dark:text-brand-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center border-white/20"
+                className="w-full lg:w-auto px-8 py-4 rounded-full glass font-bold text-base lg:text-lg text-brand-black dark:text-brand-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center border-white/20"
               >
                 Join as a Partner
               </Link>

@@ -1,6 +1,8 @@
 const express = require('express');
 const Message = require('../models/Message');
 const Booking = require('../models/Booking');
+const User = require('../models/User');
+const { sendNotificationToUser } = require('../utils/webPush');
 
 const router = express.Router();
 
@@ -56,6 +58,22 @@ router.post('/', async (req, res) => {
     const { bookingId, sender, receiver, content } = req.body;
     const message = new Message({ bookingId, sender, receiver, content });
     await message.save();
+    
+    try {
+      const receiverUser = await User.findById(receiver);
+      const senderUser = await User.findById(sender);
+      if (receiverUser && senderUser) {
+        await sendNotificationToUser(receiverUser, {
+          title: `New message from ${senderUser.name}`,
+          body: content,
+          url: receiverUser.role === 'worker' ? '/worker-dashboard' : '/client-dashboard',
+          icon: '/icons/icon-192x192.png'
+        });
+      }
+    } catch (pushErr) {
+      console.error('Failed to send push for message:', pushErr);
+    }
+    
     res.status(201).json(message);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

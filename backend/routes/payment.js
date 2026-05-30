@@ -3,6 +3,8 @@ const router = express.Router();
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Booking = require('../models/Booking');
+const User = require('../models/User');
+const { sendNotificationToUser } = require('../utils/webPush');
 
 // Initialize Razorpay
 // Note: Requires RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env
@@ -125,6 +127,21 @@ router.post('/verify', async (req, res) => {
         });
       } else {
         console.log(`Worker socket not found for worker ID: ${bookingData.worker}`);
+      }
+
+      // Send Web Push Notification to Worker
+      try {
+        const workerUser = await User.findById(bookingData.worker);
+        if (workerUser) {
+          await sendNotificationToUser(workerUser, {
+            title: 'New Booking Request!',
+            body: `${clientName} has booked you for ${bookingData.serviceName || 'a service'}.`,
+            url: '/worker-dashboard',
+            icon: '/icons/icon-192x192.png'
+          });
+        }
+      } catch (pushErr) {
+        console.error('Failed to send web push:', pushErr);
       }
 
       return res.status(200).json({ message: "Payment verified successfully", booking: newBooking });

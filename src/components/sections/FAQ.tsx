@@ -29,13 +29,13 @@ export default function FAQ() {
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-24 px-6 bg-white dark:bg-brand-darkBlue">
+    <section className="py-12 lg:py-24 px-4 lg:px-6 bg-white dark:bg-brand-darkBlue">
       <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-brand-black dark:text-white mb-4">
+        <div className="text-center mb-10 lg:mb-16">
+          <h2 className="text-2xl lg:text-4xl font-bold text-brand-black dark:text-white mb-2 lg:mb-4">
             Frequently Asked <span className="text-gradient">Questions</span>
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">
             Everything you need to know about the product and billing.
           </p>
         </div>
@@ -51,10 +51,10 @@ export default function FAQ() {
               className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/50 dark:bg-[#0f172a]/50 overflow-hidden"
             >
               <button
-                className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
+                className="w-full px-4 lg:px-6 py-4 lg:py-5 flex items-center justify-between text-left focus:outline-none"
                 onClick={() => setActiveIndex(activeIndex === index ? null : index)}
               >
-                <span className="font-semibold text-lg text-brand-black dark:text-white pr-8">
+                <span className="font-semibold text-base lg:text-lg text-brand-black dark:text-white pr-4 lg:pr-8">
                   {faq.question}
                 </span>
                 <ChevronDown 
@@ -70,7 +70,7 @@ export default function FAQ() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="px-6 pb-6 text-gray-600 dark:text-gray-400 leading-relaxed border-t border-gray-100 dark:border-gray-800 pt-4">
+                    <div className="px-4 lg:px-6 pb-4 lg:pb-6 text-sm lg:text-base text-gray-600 dark:text-gray-400 leading-relaxed border-t border-gray-100 dark:border-gray-800 pt-4">
                       {faq.answer}
                     </div>
                   </motion.div>
