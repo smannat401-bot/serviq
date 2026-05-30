@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow private dashboards and internal routes
+Disallow: /client-dashboard
+Disallow: /worker-dashboard
+Disallow: /admin-dashboard
+
+# Sitemaps
+Sitemap: https://serviq.com/sitemap.xml
