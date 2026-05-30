@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
 import { ShieldCheck, Wallet, IndianRupee, AlertTriangle } from 'lucide-react';
+import SEO from '../components/seo/SEO';
+
 
 export default function Pricing() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="Pricing" description="Transparent pricing for all SERVIQ services. No hidden fees." url="https://serviq.com/pricing" />
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-brand-black dark:text-white mb-4">Transparent Pricing</h1>

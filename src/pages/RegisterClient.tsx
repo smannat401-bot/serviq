@@ -5,6 +5,8 @@ import { CheckCircle, Upload } from 'lucide-react';
 import { API_URL, saveToken } from '../config';
 import PasswordInput from '../components/ui/PasswordInput';
 import { GoogleLogin } from '@react-oauth/google';
+import SEO from '../components/seo/SEO';
+
 
 export default function RegisterClient() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', address: '' });
@@ -153,6 +155,7 @@ export default function RegisterClient() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-6">
+      <SEO title="Register as Client" description="Sign up to find and book top-rated local professionals." url="https://serviq.com/registerclient" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

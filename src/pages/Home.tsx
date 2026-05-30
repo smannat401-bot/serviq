@@ -8,13 +8,19 @@ import PortfolioGrid from '../components/sections/PortfolioGrid';
 import Testimonials from '../components/sections/Testimonials';
 import CTASection from '../components/sections/CTASection';
 import FAQ from '../components/sections/FAQ';
+import SEO from '../components/seo/SEO';
 
 export default function Home() {
   const user = JSON.parse(localStorage.getItem('serviq_user') || '{}');
   const isWorker = user.role === 'worker';
 
   return (
-    <div className="flex flex-col bg-brand-white dark:bg-[#050505]">
+    <div className="flex flex-col overflow-x-hidden min-h-screen bg-white dark:bg-[#050505]">
+      <SEO 
+        title="Home" 
+        description="SERVIQ is your trusted platform to find and book local professionals for home and personal services." 
+        url="https://serviq.com/" 
+      />
       <Hero />
       {!isWorker && (
         <>

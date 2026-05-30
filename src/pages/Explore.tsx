@@ -5,6 +5,8 @@ import { useSearchParams, Link } from 'react-router-dom';
 import BookingModal from '../components/modals/BookingModal';
 import WorkerProfileModal from '../components/modals/WorkerProfileModal';
 import { API_URL } from '../config';
+import SEO from '../components/seo/SEO';
+
 
 const categoryIcons = [
   { name: 'Electrician', icon: Zap },
@@ -62,6 +64,7 @@ export default function Explore() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-8 px-6">
+      <SEO title="Explore Services" description="Explore all the professional services available on SERVIQ." url="https://serviq.com/explore" />
       <div className="container mx-auto max-w-7xl">
         
         {/* Header & Search */}

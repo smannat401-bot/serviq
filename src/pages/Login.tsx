@@ -6,6 +6,8 @@ import { API_URL, saveToken } from '../config';
 import PasswordInput from '../components/ui/PasswordInput';
 import Logo from '../components/ui/Logo';
 import { GoogleLogin } from '@react-oauth/google';
+import SEO from '../components/seo/SEO';
+
 
 export default function Login() {
   const [role, setRole] = useState<'client' | 'worker' | 'admin'>('client');
@@ -172,6 +174,7 @@ export default function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-6">
+      <SEO title="Login" description="Log in to your SERVIQ account to manage bookings and profile." url="https://serviq.com/login" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

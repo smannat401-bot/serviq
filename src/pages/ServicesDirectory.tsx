@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { Zap, Droplets, Wrench, Sparkles, Hammer, Paintbrush, Loader, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/seo/SEO';
+
 
 const Services = [
   { id: 1, name: 'Electrician', icon: Zap, price: '$45', desc: 'Expert wiring, light installations, and electrical repairs.', img: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&q=80' },
@@ -16,6 +18,7 @@ const Services = [
 export default function ServicesDirectory() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="Categories" description="Browse our directory of top-rated professionals by category." url="https://serviq.com/servicesdirectory" />
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-brand-black dark:text-white mb-4">Services Directory</h1>

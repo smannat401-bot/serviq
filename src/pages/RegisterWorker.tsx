@@ -5,6 +5,8 @@ import { Upload, CheckCircle } from 'lucide-react';
 import { API_URL, saveToken } from '../config';
 import PasswordInput from '../components/ui/PasswordInput';
 import { GoogleLogin } from '@react-oauth/google';
+import SEO from '../components/seo/SEO';
+
 
 export default function RegisterWorker() {
   const [formData, setFormData] = useState({ 
@@ -163,6 +165,7 @@ export default function RegisterWorker() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-6">
+      <SEO title="Register as Worker" description="Sign up to offer your services and grow your business on SERVIQ." url="https://serviq.com/registerworker" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import WorkerDashboard from './pages/WorkerDashboard';
@@ -51,6 +52,7 @@ function App() {
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
   return (
+    <HelmetProvider>
     <SocketProvider>
     <Router>
       <PushInit />
@@ -80,6 +82,7 @@ function App() {
       </Layout>
     </Router>
     </SocketProvider>
+    </HelmetProvider>
   );
 }
 

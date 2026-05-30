@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Briefcase, User } from 'lucide-react';
+import SEO from '../components/seo/SEO';
+
 
 export default function RegisterSelect() {
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center py-12 px-6">
+      <SEO title="Register" description="Join SERVIQ today as a client or a professional worker." url="https://serviq.com/register" />
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-brand-black dark:text-white mb-4">
           Join <span className="text-gradient">SERVIQ</span>

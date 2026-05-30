@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { Search, CreditCard, Briefcase, CheckCircle, Key, Wallet } from 'lucide-react';
+import SEO from '../components/seo/SEO';
+
 
 const steps = [
   {
@@ -55,6 +57,7 @@ const steps = [
 export default function HowItWorks() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="How It Works" description="Learn how to book a service or become a verified professional on SERVIQ." url="https://serviq.com/howitworks" />
       <div className="container mx-auto max-w-3xl">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-brand-black dark:text-white mb-4">How It Works</h1>

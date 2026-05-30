@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
 import { Target, Eye, ShieldCheck, Heart } from 'lucide-react';
+import SEO from '../components/seo/SEO';
+
 
 export default function About() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="About Us" description="Learn more about SERVIQ and our mission to connect you with trusted professionals." url="https://serviq.com/about" />
       <div className="container mx-auto max-w-4xl">
         
         {/* Header */}

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { Phone, Mail, MessageCircle, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import SEO from '../components/seo/SEO';
+
 
 const faqs = [
   {
@@ -26,6 +28,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="Contact" description="Get in touch with the SERVIQ team for support and inquiries." url="https://serviq.com/contact" />
       <div className="container mx-auto max-w-6xl">
         
         <div className="text-center mb-16">

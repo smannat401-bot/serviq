@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { MessageSquare, ThumbsUp, User, Search, PlusCircle } from 'lucide-react';
+import SEO from '../components/seo/SEO';
+
 
 const threads = [
   {
@@ -40,6 +42,7 @@ const threads = [
 export default function Community() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="Community" description="Join the SERVIQ community to share tips and find trusted advice." url="https://serviq.com/community" />
       <div className="container mx-auto max-w-5xl">
         
         {/* Header */}

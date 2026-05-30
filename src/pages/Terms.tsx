@@ -1,8 +1,11 @@
 import { AlertTriangle } from 'lucide-react';
+import SEO from '../components/seo/SEO';
+
 
 export default function Terms() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="Terms of Service" description="Read the terms of service of SERVIQ." url="https://serviq.com/terms" />
       <div className="container mx-auto max-w-4xl">
         <div className="glass-card p-8 md:p-12">
           <h1 className="text-4xl font-bold text-brand-black dark:text-white mb-8">Terms of Service</h1>

@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, Quote, Award } from 'lucide-react';
+import SEO from '../components/seo/SEO';
+
 
 const stories = [
   {
@@ -34,6 +36,7 @@ const stories = [
 export default function SuccessStories() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
+      <SEO title="Success Stories" description="Read stories from real users who found reliable help through SERVIQ." url="https://serviq.com/successstories" />
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-brand-black dark:text-white mb-4">Worker Success Stories</h1>
