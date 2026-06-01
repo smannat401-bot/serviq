@@ -4,8 +4,20 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
+    question: "How do I book an emergency plumber near me or 24/7 electrician?",
+    answer: "You can book verified professionals for any urgent repairs including a 24 hour emergency plumber, gas line repair, water heater installation, power outage electricians, ceiling fan repair, short circuit fix, or geyser service near you instantly on SERVIQ."
+  },
+  {
+    question: "What is the average AC repair cost or split AC gas refill charges?",
+    answer: "Our platform offers transparent, affordable AC service and repairs with no hidden fees. You can view split AC gas refill costs, window AC servicing rates, and plumber charges directly on the professional's profile before booking."
+  },
+  {
+    question: "Do you provide home deep cleaning and professional painting services?",
+    answer: "Yes, you can hire local verified service partners for home cleaning, sofa cleaning, kitchen deep cleaning, interior wall painting, False ceiling pop design, and wood polishing at transparent, affordable pricing."
+  },
+  {
     question: "How does SERVIQ work?",
-    answer: "Simply search for the repair Service you need, view a list of nearby verified professionals, and book them instantly through our platform. You can chat with them directly and track their arrival."
+    answer: "Simply search for the repair service you need, view a list of nearby verified professionals, and book them instantly through our platform. You can chat with them directly and track their arrival."
   },
   {
     question: "How do I book a worker?",
@@ -18,10 +30,6 @@ const faqs = [
   {
     question: "How does payment work?",
     answer: "Payments are handled securely through our platform. We hold the payment in escrow until the job is completed to your satisfaction. We support all major credit cards and digital wallets."
-  },
-  {
-    question: "How are nearby workers shown?",
-    answer: "Our AI-powered recommendation engine uses your device's location to match you with available professionals within your selected radius, prioritizing those with the highest ratings and fastest response times."
   }
 ];
 

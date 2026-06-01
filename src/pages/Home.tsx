@@ -57,8 +57,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-[#050505] overflow-x-hidden">
       <SEO 
-        title="Home" 
-        description="SERVIQ is your trusted platform to find and book local professionals for home and personal services." 
+        title="Verified Home Services | Emergency Plumbers, Electricians & AC Repair Near Me" 
+        description="SERVIQ is your #1 on-demand home services marketplace. Book verified local professionals for emergency plumbing, 24/7 electrician, split AC service, geyser repair, home cleaning, carpentry, and home appliance repairs." 
         url="https://serviq.com/" 
       />
 
@@ -87,130 +87,188 @@ export default function Home() {
       {/* ======================================================== */}
       {/* MOBILE APP-LIKE VIEW - 100% EXACTLY ASfigma/mockups */}
       {/* ======================================================== */}
-      <div className="block lg:hidden bg-[#050505] text-white px-4 pt-12 pb-24 space-y-8">
-        
-        {/* 1. Hero Text / App Branding Header */}
-        <div className="pt-2">
-          <h1 className="text-3xl font-extrabold tracking-tight leading-tight text-white Outfit">
-            Trusted Home <br />
-            Services at Your <br />
-            <span className="text-gradient">Doorstep</span>
-          </h1>
-          <p className="text-gray-400 text-sm mt-2 font-medium">
-            Book verified professionals for all your home service needs.
-          </p>
-        </div>
+      {/* If the user is a Client or guest */}
+      {!isWorker ? (
+        <div className="block lg:hidden bg-[#050505] text-white px-4 pt-12 pb-24 space-y-8">
+          
+          {/* 1. Hero Text / App Branding Header */}
+          <div className="pt-2">
+            <h1 className="text-3xl font-extrabold tracking-tight leading-tight text-white Outfit">
+              Trusted Home <br />
+              Services at Your <br />
+              <span className="text-gradient">Doorstep</span>
+            </h1>
+            <p className="text-gray-400 text-sm mt-2 font-medium">
+              Book verified professionals for all your home service needs.
+            </p>
+          </div>
 
-        {/* 2. Unified Search Box (Screen 1 Style) */}
-        <div className="bg-[#0f172a]/60 border border-white/5 p-4 rounded-2xl">
-          <div className="relative flex items-center">
-            <Search className="absolute left-4 text-gray-400" size={18} />
-            <input 
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="What service do you need?"
-              className="w-full pl-12 pr-4 py-3.5 bg-[#080d1a] border border-white/5 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-white"
-            />
+          {/* 2. Unified Search Box (Screen 1 Style) */}
+          <div className="bg-[#0f172a]/60 border border-white/5 p-4 rounded-2xl">
+            <div className="relative flex items-center">
+              <Search className="absolute left-4 text-gray-400" size={18} />
+              <input 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="What service do you need?"
+                className="w-full pl-12 pr-4 py-3.5 bg-[#080d1a] border border-white/5 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-white"
+              />
+            </div>
+            <button 
+              onClick={handleSearch}
+              className="w-full mt-3 py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-transform text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20"
+            >
+              Search
+            </button>
           </div>
-          <button 
-            onClick={handleSearch}
-            className="w-full mt-3 py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-transform text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20"
-          >
-            Search
-          </button>
-        </div>
 
-        {/* 3. Popular Services Grid */}
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold Outfit text-white">Popular Services</h2>
-            <Link to="/explore" className="text-xs font-bold text-blue-500 hover:text-blue-400">View all</Link>
-          </div>
-          <div className="grid grid-cols-4 gap-2.5">
-            {popularServices.map((service, idx) => (
-              <Link 
-                key={idx}
-                to={service.q ? `/explore?q=${encodeURIComponent(service.q)}` : '/explore'}
-                className="flex flex-col items-center justify-center p-3 bg-[#0f172a]/50 border border-white/5 rounded-xl hover:border-blue-500/30 transition-colors"
-              >
-                <div className={`w-11 h-11 rounded-lg ${service.bg} flex items-center justify-center mb-2`}>
-                  <service.icon className={`${service.color} w-5 h-5`} />
-                </div>
-                <span className="text-[10px] font-semibold text-gray-300 text-center truncate w-full">{service.name}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* 4. Why Choose Serviq */}
-        <div>
-          <h2 className="text-lg font-bold Outfit text-white mb-4">Why Choose Serviq?</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
-            {whyChooseUs.map((item, idx) => (
-              <div 
-                key={idx}
-                className="w-56 shrink-0 bg-[#0f172a]/40 border border-white/5 p-4 rounded-xl snap-center flex flex-col justify-between"
-              >
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 mb-3">
-                  <item.icon size={20} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white mb-1">{item.title}</h3>
-                  <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 5. Near Workers (Screen 4 Layout) */}
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold Outfit text-white">Top Rated Nearby</h2>
-            <Link to="/explore" className="text-xs font-bold text-blue-500 hover:text-blue-400">View all</Link>
-          </div>
-          <div className="space-y-3">
-            {workers.map((worker) => (
-              <Link 
-                to={user._id ? `/explore?q=${encodeURIComponent(worker.name)}` : '/login'}
-                key={worker._id}
-                className="flex items-center gap-3 p-3.5 bg-[#0f172a]/60 border border-white/5 rounded-xl hover:border-blue-500/20 transition-all block"
-              >
-                <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center font-bold text-lg text-blue-400 shrink-0 border border-white/10">
-                  {worker.profilePhoto ? (
-                    <img src={worker.profilePhoto} alt={worker.name} className="w-full h-full object-cover rounded-full" />
-                  ) : (
-                    worker.name.charAt(0)
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1">
-                    <h3 className="font-bold text-sm text-white truncate">{worker.name}</h3>
-                    <BadgeCheck size={14} className="text-blue-500 shrink-0" />
+          {/* 3. Popular Services Grid */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold Outfit text-white">Popular Services</h2>
+              <Link to="/explore" className="text-xs font-bold text-blue-500 hover:text-blue-400">View all</Link>
+            </div>
+            <div className="grid grid-cols-4 gap-2.5">
+              {popularServices.map((service, idx) => (
+                <Link 
+                  key={idx}
+                  to={service.q ? `/explore?q=${encodeURIComponent(service.q)}` : '/explore'}
+                  className="flex flex-col items-center justify-center p-3 bg-[#0f172a]/50 border border-white/5 rounded-xl hover:border-blue-500/30 transition-colors"
+                >
+                  <div className={`w-11 h-11 rounded-lg ${service.bg} flex items-center justify-center mb-2`}>
+                    <service.icon className={`${service.color} w-5 h-5`} />
                   </div>
-                  <p className="text-[11px] text-blue-400 font-semibold mt-0.5">{worker.skill || 'Professional'}</p>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <div className="flex items-center gap-0.5 bg-white/5 px-1.5 py-0.5 rounded text-[10px] font-bold text-yellow-500">
-                      <Star size={10} className="fill-yellow-500 text-yellow-500" />
-                      <span>5.0</span>
+                  <span className="text-[10px] font-semibold text-gray-300 text-center truncate w-full">{service.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. Why Choose Serviq */}
+          <div>
+            <h2 className="text-lg font-bold Outfit text-white mb-4">Why Choose Serviq?</h2>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+              {whyChooseUs.map((item, idx) => (
+                <div 
+                  key={idx}
+                  className="w-56 shrink-0 bg-[#0f172a]/40 border border-white/5 p-4 rounded-xl snap-center flex flex-col justify-between"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 mb-3">
+                    <item.icon size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white mb-1">{item.title}</h3>
+                    <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 5. Near Workers (Screen 4 Layout) */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold Outfit text-white">Top Rated Nearby</h2>
+              <Link to="/explore" className="text-xs font-bold text-blue-500 hover:text-blue-400">View all</Link>
+            </div>
+            <div className="space-y-3">
+              {workers.map((worker) => (
+                <Link 
+                  to={user._id ? `/explore?q=${encodeURIComponent(worker.name)}` : '/login'}
+                  key={worker._id}
+                  className="flex items-center gap-3 p-3.5 bg-[#0f172a]/60 border border-white/5 rounded-xl hover:border-blue-500/20 transition-all block"
+                >
+                  <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center font-bold text-lg text-blue-400 shrink-0 border border-white/10">
+                    {worker.profilePhoto ? (
+                      <img src={worker.profilePhoto} alt={worker.name} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      worker.name.charAt(0)
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1">
+                      <h3 className="font-bold text-sm text-white truncate">{worker.name}</h3>
+                      <BadgeCheck size={14} className="text-blue-500 shrink-0" />
                     </div>
-                    <span className="text-[10px] text-gray-500">Nearby</span>
+                    <p className="text-[11px] text-blue-400 font-semibold mt-0.5">{worker.skill || 'Professional'}</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className="flex items-center gap-0.5 bg-white/5 px-1.5 py-0.5 rounded text-[10px] font-bold text-yellow-500">
+                        <Star size={10} className="fill-yellow-500 text-yellow-500" />
+                        <span>5.0</span>
+                      </div>
+                      <span className="text-[10px] text-gray-500">Nearby</span>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xs text-gray-400 block mb-1">Starting at</span>
-                  <span className="text-sm font-bold text-white">₹{worker.catalog && worker.catalog.length > 0 ? worker.catalog[0].price : '200'}</span>
-                </div>
-              </Link>
-            ))}
-            {workers.length === 0 && (
-              <div className="text-center py-6 text-xs text-gray-500">Loading service partners near you...</div>
-            )}
+                  <div className="text-right shrink-0">
+                    <span className="text-xs text-gray-400 block mb-1">Starting at</span>
+                    <span className="text-sm font-bold text-white">₹{worker.catalog && worker.catalog.length > 0 ? worker.catalog[0].price : '200'}</span>
+                  </div>
+                </Link>
+              ))}
+              {workers.length === 0 && (
+                <div className="text-center py-6 text-xs text-gray-500">Loading service partners near you...</div>
+              )}
+            </div>
+          </div>
+
+        </div>
+      ) : (
+        /* If the user is a Worker */
+        <div className="block lg:hidden bg-[#050505] text-white px-4 pt-16 pb-24 space-y-6">
+          <div className="pt-2 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight text-white Outfit">
+                Welcome back, <span className="text-gradient">{user.name?.split(' ')[0] || 'Partner'}</span>!
+              </h1>
+              <p className="text-gray-400 text-xs mt-1">SERVIQ Pro Partner Portal</p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center font-bold text-blue-400 overflow-hidden">
+              {user.profilePhoto ? (
+                <img src={user.profilePhoto} alt="Profile" className="w-full h-full object-cover rounded-full" />
+              ) : (
+                user.name?.charAt(0) || 'P'
+              )}
+            </div>
+          </div>
+
+          {/* Quick Info / Stats */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-4 bg-[#0f172a]/60 border border-white/5 rounded-2xl">
+              <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Honour Score</span>
+              <div className="text-2xl font-bold text-blue-400 mt-1">{user.honourScore || 100}</div>
+            </div>
+            <div className="p-4 bg-[#0f172a]/60 border border-white/5 rounded-2xl">
+              <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Job Streak</span>
+              <div className="text-2xl font-bold text-yellow-500 mt-1">{user.jobStreak || 0} 🔥</div>
+            </div>
+          </div>
+
+          {/* Dashboard Quick Access Card */}
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-2xl text-center space-y-4 shadow-lg shadow-blue-600/15">
+            <h3 className="font-bold text-lg text-white Outfit">Manage Your Business</h3>
+            <p className="text-white/80 text-xs leading-relaxed max-w-xs mx-auto">
+              Accept incoming bookings, check your wallet earnings, edit services, update pricing and chat with clients directly.
+            </p>
+            <Link 
+              to="/worker-dashboard" 
+              className="inline-block w-full py-3 bg-white text-blue-600 hover:bg-gray-100 font-bold text-sm rounded-xl transition-all shadow-md active:scale-[0.98] text-center"
+            >
+              Open Partner Dashboard
+            </Link>
+          </div>
+
+          {/* Quick Guidelines */}
+          <div className="bg-[#0f172a]/40 border border-white/5 p-5 rounded-2xl space-y-3">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-gray-400">Partner Safety & Rules</h4>
+            <ul className="text-xs text-gray-400 space-y-2 leading-relaxed">
+              <li>• Always request the 4-digit verification code from the customer after completing the service.</li>
+              <li>• Refusal or cancellation of accepted jobs drops your Honour Score. Keep it above 75 to avoid suspension.</li>
+              <li>• Customer support is available 24/7 inside your dashboard.</li>
+            </ul>
           </div>
         </div>
-
-      </div>
+      )}
 
     </div>
   );

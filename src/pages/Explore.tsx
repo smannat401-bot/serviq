@@ -64,7 +64,11 @@ export default function Explore() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-8 px-6">
-      <SEO title="Explore Services" description="Explore all the professional services available on SERVIQ." url="https://serviq.com/explore" />
+      <SEO 
+        title="Find Local Services Near Me | TV, Refrigerator & Washing Machine Repair" 
+        description="Search and book top-rated local experts near you for same-day washing machine service, refrigerator repair, smart LED TV display fix, RO water filter service, or modular kitchen carpenter." 
+        url="https://serviq.com/explore" 
+      />
       <div className="container mx-auto max-w-7xl">
         
         {/* Header & Search */}

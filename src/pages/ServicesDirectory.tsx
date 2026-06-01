@@ -18,7 +18,11 @@ const Services = [
 export default function ServicesDirectory() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060a14] py-16 px-6">
-      <SEO title="Categories" description="Browse our directory of top-rated professionals by category." url="https://serviq.com/servicesdirectory" />
+      <SEO 
+        title="Home Service Directory | Electricians, Plumbers & Carpenters Near Me" 
+        description="Browse our complete list of home maintenance services. Book local background-verified experts for geyser repair, split AC gas refill, washing machine repair, deep kitchen cleaning, wall painting, and furniture woodwork." 
+        url="https://serviq.com/servicesdirectory" 
+      />
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-brand-black dark:text-white mb-4">Services Directory</h1>

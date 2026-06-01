@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Briefcase, IndianRupee, Star, Calendar,
   MessageSquare, Bell, CheckCircle, XCircle,
-  Plus, Tag, Trash2, User, MapPin, Clock, Edit3, LogOut, Phone, Upload, Trash, AlertTriangle, ShieldOff, Info, ArrowLeft
+  Plus, Tag, Trash2, User, MapPin, Clock, Edit3, LogOut, Phone, Upload, Trash, AlertTriangle, ShieldOff, Info, ArrowLeft, ChevronRight, Menu
 } from 'lucide-react';
 
 
@@ -76,12 +76,12 @@ export default function WorkerDashboard() {
   }
 
   const [searchParams] = useSearchParams();
-  // Map 'bookings' from nav to 'bookings' or 'overview' tab for workers
+  // Map 'bookings' from nav to 'overview' tab for workers
   const getInitialTab = () => {
     const tab = searchParams.get('tab');
-    if (tab === 'bookings') return 'bookings';
+    if (tab === 'bookings') return 'overview';
     if (tab === 'messages') return 'messages';
-    if (tab === 'settings') return 'profile'; // profile edit tab in worker dashboard is called 'profile' or similar, let's map it or just return tab
+    if (tab === 'settings') return 'profile';
     return tab || 'overview';
   };
   
@@ -91,9 +91,9 @@ export default function WorkerDashboard() {
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab) {
-      if (tab === 'bookings') setActiveTab('bookings');
+      if (tab === 'bookings') setActiveTab('overview');
       else if (tab === 'messages') setActiveTab('messages');
-      else if (tab === 'settings') setActiveTab('profile'); // overview/settings
+      else if (tab === 'settings') setActiveTab('profile');
       else setActiveTab(tab);
     }
   }, [searchParams]);
@@ -1021,6 +1021,13 @@ export default function WorkerDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('menu')}
+                  className="md:hidden flex items-center gap-2 text-brand-electricBlue font-bold text-sm mb-4"
+                >
+                  <ArrowLeft size={16} /> Back to Menu
+                </button>
                 <div className="glass-card p-8">
                   <div className="flex justify-between items-start mb-8">
                     <h2 className="text-2xl font-bold text-brand-black dark:text-white">Profile Details</h2>
@@ -1183,6 +1190,13 @@ export default function WorkerDashboard() {
 
             {activeTab === 'wallet' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('menu')}
+                  className="md:hidden flex items-center gap-2 text-brand-electricBlue font-bold text-sm mb-4"
+                >
+                  <ArrowLeft size={16} /> Back to Menu
+                </button>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="glass-card p-6">
                     <h3 className="text-gray-500 font-bold uppercase tracking-wider text-xs mb-2">Available Balance</h3>
@@ -1202,6 +1216,13 @@ export default function WorkerDashboard() {
 
             {activeTab === 'calendar' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('menu')}
+                  className="md:hidden flex items-center gap-2 text-brand-electricBlue font-bold text-sm mb-4"
+                >
+                  <ArrowLeft size={16} /> Back to Menu
+                </button>
                 <div className="glass-card p-8">
                   <h2 className="text-2xl font-bold text-brand-black dark:text-white mb-6">My Schedule</h2>
                   <p className="text-gray-500 mb-8">Set your available days and working hours. Clients can only book you during these slots.</p>
@@ -1269,6 +1290,13 @@ export default function WorkerDashboard() {
 
             {activeTab === 'pricing' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('menu')}
+                  className="md:hidden flex items-center gap-2 text-brand-electricBlue font-bold text-sm mb-4"
+                >
+                  <ArrowLeft size={16} /> Back to Menu
+                </button>
                 <div className="glass-card p-8">
                   <h2 className="text-2xl font-bold text-brand-black dark:text-white mb-6">Service Charges & Pricing</h2>
                   <p className="text-gray-500 mb-8">Control your earnings by setting your own base charges and travel fees. These will be automatically added to the total booking cost.</p>
@@ -1501,6 +1529,65 @@ export default function WorkerDashboard() {
                 )}
               </div>
             </div>
+            {activeTab === 'menu' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6 md:hidden"
+              >
+                {/* Profile Card */}
+                <div className="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-white to-gray-50 dark:from-[#0f172a] dark:to-[#060a14]">
+                  <div className="w-16 h-16 rounded-full bg-brand-electricBlue/10 flex items-center justify-center text-2xl text-brand-electricBlue font-bold overflow-hidden border-2 border-white dark:border-[#0f172a] shadow-sm shrink-0">
+                    {user.profilePhoto ? (
+                      <img src={user.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      user.name ? user.name.charAt(0) : 'W'
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-brand-black dark:text-white">{user.name || 'Pro Partner'}</h3>
+                    <p className="text-sm text-brand-electricBlue font-medium">{user.skill || 'Professional'}</p>
+                  </div>
+                </div>
+
+                {/* Menu Options List */}
+                <div className="glass-card overflow-hidden divide-y divide-gray-100 dark:divide-white/5 bg-white dark:bg-[#0f172a]">
+                  {[
+                    { id: 'overview', label: 'Overview', icon: Briefcase },
+                    { id: 'wallet', label: 'Wallet & Earnings', icon: IndianRupee },
+                    { id: 'Services', label: 'My Services', icon: Tag },
+                    { id: 'calendar', label: 'Schedule', icon: Calendar },
+                    { id: 'pricing', label: 'Charges & Profit', icon: IndianRupee },
+                    { id: 'messages', label: 'Messages', icon: MessageSquare },
+                    { id: 'profile', label: 'Profile Details', icon: User },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                        <item.icon size={20} className="text-gray-400 dark:text-gray-500" />
+                        <span className="font-semibold text-base">{item.label}</span>
+                      </div>
+                      <ChevronRight size={18} className="text-gray-400" />
+                    </button>
+                  ))}
+                  
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('serviq_user');
+                      localStorage.removeItem('serviq_token');
+                      window.location.href = '/';
+                    }}
+                    className="w-full flex items-center gap-3 px-6 py-4 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left"
+                  >
+                    <LogOut size={20} />
+                    <span className="font-bold text-base">Log Out</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       )}
@@ -1532,28 +1619,25 @@ export default function WorkerDashboard() {
       )}
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 flex overflow-x-auto shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 pb-safe" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        <style dangerouslySetInnerHTML={{__html: `nav::-webkit-scrollbar { display: none; }`}} />
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 flex justify-around items-center p-3 z-40 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] pb-safe">
         {[
           { id: 'overview', label: 'Home', icon: Briefcase },
-          { id: 'wallet', label: 'Earnings', icon: IndianRupee },
           { id: 'Services', label: 'Services', icon: Tag },
-          { id: 'calendar', label: 'Schedule', icon: Calendar },
-          { id: 'pricing', label: 'Pricing', icon: IndianRupee },
           { id: 'messages', label: 'Chat', icon: MessageSquare },
-          { id: 'profile', label: 'Profile', icon: User },
+          { id: 'menu', label: 'Menu', icon: Menu },
         ].map((item) => (
           <button
             key={item.id}
+            type="button"
             onClick={() => setActiveTab(item.id)}
-            className={`min-w-[72px] flex-1 flex flex-col items-center gap-1 p-3 transition-colors ${
+            className={`flex flex-col items-center gap-1 p-2 transition-colors ${
               activeTab === item.id 
                 ? 'text-brand-electricBlue' 
                 : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <item.icon size={22} className={activeTab === item.id ? 'fill-brand-electricBlue/20' : ''} />
-            <span className="text-[10px] font-bold truncate w-full text-center">{item.label}</span>
+            <span className="text-[10px] font-bold">{item.label}</span>
           </button>
         ))}
       </nav>
