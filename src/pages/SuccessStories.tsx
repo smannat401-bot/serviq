@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { TrendingUp, Quote, Award } from 'lucide-react';
 import SEO from '../components/seo/SEO';
 
@@ -93,9 +94,9 @@ export default function SuccessStories() {
         <div className="mt-16 glass-card p-12 text-center bg-gradient-to-br from-brand-electricBlue/10 to-transparent border-brand-electricBlue/20">
           <h2 className="text-3xl font-bold text-brand-black dark:text-white mb-4">Ready to write your own success story?</h2>
           <p className="text-gray-500 mb-8 max-w-xl mx-auto">Join thousands of professionals who are taking control of their income and schedule.</p>
-          <a href="/register/worker" className="inline-block px-8 py-4 bg-brand-electricBlue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-brand-electricBlue/20">
+          <Link to="/register/worker" className="inline-block px-8 py-4 bg-brand-electricBlue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-brand-electricBlue/20">
             Join as a Pro Today
-          </a>
+          </Link>
         </div>
       </div>
     </div>

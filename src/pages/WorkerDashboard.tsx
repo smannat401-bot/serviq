@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Briefcase, IndianRupee, Star, Calendar,
@@ -74,7 +75,28 @@ export default function WorkerDashboard() {
     return null;
   }
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams] = useSearchParams();
+  // Map 'bookings' from nav to 'bookings' or 'overview' tab for workers
+  const getInitialTab = () => {
+    const tab = searchParams.get('tab');
+    if (tab === 'bookings') return 'bookings';
+    if (tab === 'messages') return 'messages';
+    if (tab === 'settings') return 'profile'; // profile edit tab in worker dashboard is called 'profile' or similar, let's map it or just return tab
+    return tab || 'overview';
+  };
+  
+  const [activeTab, setActiveTab] = useState(getInitialTab());
+
+  // Sync tab with search params
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      if (tab === 'bookings') setActiveTab('bookings');
+      else if (tab === 'messages') setActiveTab('messages');
+      else if (tab === 'settings') setActiveTab('profile'); // overview/settings
+      else setActiveTab(tab);
+    }
+  }, [searchParams]);
   const [selectedMapJob, setSelectedMapJob] = useState<any | null>(null);
   const [selectedBookingForCompletion, setSelectedBookingForCompletion] = useState<string | null>(null);
   const [selectedBookingForCancellation, setSelectedBookingForCancellation] = useState<string | null>(null);

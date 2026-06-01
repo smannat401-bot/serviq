@@ -30,9 +30,9 @@ export default function SmartSearch() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto glass-card p-6 rounded-3xl"
+          className="max-w-4xl mx-auto glass-card p-4 lg:p-6 rounded-2xl lg:rounded-3xl"
         >
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-3 lg:gap-4">
             {/* Search Input */}
             <div className="flex-1 relative">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -67,7 +67,7 @@ export default function SmartSearch() {
             {/* Search Button */}
             <button 
               onClick={handleSearch}
-              className="bg-gradient-to-r from-brand-electricBlue to-blue-600 text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-brand-electricBlue/30 transition-all flex items-center justify-center gap-2"
+              className="w-full lg:w-auto bg-gradient-to-r from-brand-electricBlue to-blue-600 text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-brand-electricBlue/30 transition-all flex items-center justify-center gap-2"
             >
               <Search size={20} />
               <span>Search</span>
@@ -75,7 +75,7 @@ export default function SmartSearch() {
           </div>
 
           {/* Suggestions */}
-          <div className="mt-6">
+          <div className="mt-4 lg:mt-6">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
               <SparklesIcon /> AI Suggested:
             </p>
@@ -87,7 +87,7 @@ export default function SmartSearch() {
                     setQuery(suggestion);
                     // Optionally trigger search immediately or just set query
                   }}
-                  className="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-brand-electricBlue hover:text-white dark:hover:bg-brand-electricBlue transition-colors border border-transparent dark:border-gray-700"
+                  className="px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-brand-electricBlue hover:text-white dark:hover:bg-brand-electricBlue transition-colors border border-transparent dark:border-gray-700"
                 >
                   {suggestion}
                 </button>

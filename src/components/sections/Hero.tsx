@@ -26,7 +26,7 @@ export default function Hero() {
       </div>
 
       <div className="container mx-auto px-4 lg:px-6 relative z-10 w-full">
-        <div className="max-w-5xl mx-auto text-center space-y-10">
+        <div className="max-w-5xl mx-auto text-center space-y-6 lg:space-y-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -50,7 +50,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-8xl font-extrabold tracking-tight text-brand-black dark:text-brand-white leading-[1.1]"
+            className="text-3xl md:text-5xl lg:text-8xl font-extrabold tracking-tight text-brand-black dark:text-brand-white leading-[1.1]"
           >
             Your Vision, <br />
             <span className="text-gradient">Our Expertise.</span>
@@ -60,7 +60,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
+            className="text-base md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
           >
             The future of on-demand Services. Connect with elite pros for home, tech, and creative solutions—delivered at the speed of thought.
           </motion.p>
@@ -69,7 +69,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-4 lg:gap-6 pt-8 lg:pt-10 w-full px-2 lg:px-0"
+            className="flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-3 lg:gap-6 pt-4 lg:pt-10 w-full px-0 lg:px-0"
           >
             <Link
               to={isWorker ? "/worker-dashboard" : "/explore"}

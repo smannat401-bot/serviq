@@ -4,7 +4,7 @@ import { Mail, Phone, Globe, MessageCircle, Share2, Users } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-white dark:bg-[#050505] border-t border-gray-100 dark:border-white/5 transition-colors pt-12 lg:pt-24 pb-8 lg:pb-12">
+    <footer className="hidden lg:block bg-white dark:bg-[#050505] border-t border-gray-100 dark:border-white/5 transition-colors pt-12 lg:pt-24 pb-8 lg:pb-12">
       <div className="container mx-auto px-4 lg:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-10 lg:mb-20">
           {/* Brand */}

@@ -68,8 +68,8 @@ export default function Testimonials() {
   const displayTestimonials = [...testimonials, ...testimonials];
 
   return (
-    <section className="section-spacing bg-white dark:bg-[#050505] overflow-hidden">
-      <div className="container mx-auto px-4 lg:px-6 mb-10 lg:mb-20 text-center">
+    <section className="py-12 lg:py-24 bg-white dark:bg-[#050505] overflow-hidden">
+      <div className="container mx-auto px-4 lg:px-6 mb-8 lg:mb-20 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -94,31 +94,31 @@ export default function Testimonials() {
               ease: "linear",
             },
           }}
-          className="flex gap-8 whitespace-nowrap py-10"
+          className="flex gap-4 lg:gap-8 whitespace-nowrap py-6 lg:py-10"
         >
           {displayTestimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="w-[300px] lg:w-[450px] shrink-0 glass-card p-6 lg:p-10 whitespace-normal border-gray-100 dark:border-white/10"
+              className="w-[280px] sm:w-[300px] lg:w-[450px] shrink-0 glass-card p-5 lg:p-10 whitespace-normal border-gray-100 dark:border-white/10"
             >
-              <div className="flex gap-1 mb-6 lg:mb-8">
+              <div className="flex gap-1 mb-4 lg:mb-8">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={18} className="text-brand-gold fill-brand-gold" />
                 ))}
               </div>
 
-              <div className="relative mb-6 lg:mb-10">
-                <Quote size={40} className="absolute -top-4 -left-4 text-brand-electricBlue/10" />
-                <p className="text-base lg:text-xl text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+              <div className="relative mb-4 lg:mb-10">
+                <Quote size={32} className="absolute -top-3 -left-3 lg:-top-4 lg:-left-4 text-brand-electricBlue/10" />
+                <p className="text-sm lg:text-xl text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
                   "{testimonial.content}"
                 </p>
               </div>
 
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-3 lg:gap-5">
                 <img 
                   src={testimonial.image} 
                   alt={testimonial.author} 
-                  className="w-14 h-14 rounded-full object-cover border-2 border-brand-electricBlue/20 shadow-lg"
+                  className="w-10 h-10 lg:w-14 lg:h-14 rounded-full object-cover border-2 border-brand-electricBlue/20 shadow-lg"
                 />
                 <div>
                   <h4 className="font-bold text-brand-black dark:text-white text-base lg:text-lg leading-tight">{testimonial.author}</h4>

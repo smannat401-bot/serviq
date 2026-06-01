@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ClipboardList, Heart, MessageSquare, Settings, Bell, MapPin, Search, BadgeCheck, Tag, LogOut, Star, Upload, Trash, Phone, RefreshCw, CreditCard, ArrowLeft
@@ -25,7 +26,16 @@ export default function ClientDashboard() {
     return null;
   }
 
-  const [activeTab, setActiveTab] = useState('browse');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'browse');
+
+  // Sync tab with search params
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [workers, setWorkers] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);

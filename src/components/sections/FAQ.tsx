@@ -40,7 +40,7 @@ export default function FAQ() {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 lg:space-y-4">
           {faqs.map((faq, index) => (
             <motion.div
               key={index}
@@ -51,7 +51,7 @@ export default function FAQ() {
               className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/50 dark:bg-[#0f172a]/50 overflow-hidden"
             >
               <button
-                className="w-full px-4 lg:px-6 py-4 lg:py-5 flex items-center justify-between text-left focus:outline-none"
+                className="w-full px-4 lg:px-6 py-4 lg:py-5 min-h-[44px] flex items-center justify-between text-left focus:outline-none"
                 onClick={() => setActiveIndex(activeIndex === index ? null : index)}
               >
                 <span className="font-semibold text-base lg:text-lg text-brand-black dark:text-white pr-4 lg:pr-8">

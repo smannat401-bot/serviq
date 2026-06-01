@@ -43,7 +43,7 @@ export default function NearbyWorkers() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {workers
             .filter(worker => user?._id !== worker._id)
             .map((worker, index) => (
@@ -53,7 +53,7 @@ export default function NearbyWorkers() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white dark:bg-[#0f172a] rounded-3xl p-5 border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:border-brand-electricBlue/30 transition-all group cursor-pointer"
+              className="bg-white dark:bg-[#0f172a] rounded-3xl p-4 lg:p-5 border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:border-brand-electricBlue/30 transition-all group cursor-pointer"
               onClick={() => setSelectedProfile(worker)}
             >
               <div className="relative mb-4">
@@ -97,12 +97,12 @@ export default function NearbyWorkers() {
                 </div>
 
                 {(!user?._id) ? (
-                  <button 
-                    onClick={() => window.location.href = '/login'}
-                    className="w-full mt-4 bg-gray-50 dark:bg-gray-800 hover:bg-brand-electricBlue hover:text-white dark:hover:bg-brand-electricBlue text-brand-black dark:text-white font-medium py-3 rounded-xl transition-colors"
+                  <Link 
+                    to="/login"
+                    className="w-full mt-4 bg-gray-50 dark:bg-gray-800 hover:bg-brand-electricBlue hover:text-white dark:hover:bg-brand-electricBlue text-brand-black dark:text-white font-medium py-3 min-h-[44px] rounded-xl transition-colors flex items-center justify-center"
                   >
                     Login to Book
-                  </button>
+                  </Link>
                 ) : user?.role === 'client' ? (
                   <div className="flex flex-col gap-2 mt-4">
                     <button 
@@ -110,7 +110,7 @@ export default function NearbyWorkers() {
                         e.stopPropagation();
                         setSelectedBooking(worker);
                       }}
-                      className="w-full bg-brand-black dark:bg-white text-white dark:text-brand-black font-bold py-3 rounded-xl hover:bg-brand-gold dark:hover:bg-brand-gold transition-colors"
+                      className="w-full bg-brand-black dark:bg-white text-white dark:text-brand-black font-bold py-3 min-h-[44px] rounded-xl hover:bg-brand-gold dark:hover:bg-brand-gold transition-colors"
                     >
                       Book Now
                     </button>
@@ -119,13 +119,13 @@ export default function NearbyWorkers() {
                         e.stopPropagation();
                         setSelectedProfile(worker);
                       }}
-                      className="w-full bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-brand-black dark:text-white font-medium py-2 rounded-xl transition-colors text-sm"
+                      className="w-full bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-brand-black dark:text-white font-medium py-2 min-h-[44px] rounded-xl transition-colors text-sm"
                     >
                       View Profile
                     </button>
                   </div>
                 ) : user?._id === worker._id ? (
-                  <div className="w-full mt-4 py-3 bg-gray-100 dark:bg-white/5 text-gray-500 font-bold rounded-xl text-center cursor-not-allowed text-sm">
+                  <div className="w-full mt-4 py-3 min-h-[44px] bg-gray-100 dark:bg-white/5 text-gray-500 font-bold rounded-xl text-center cursor-not-allowed text-sm flex items-center justify-center">
                     Your Profile
                   </div>
                 ) : null}

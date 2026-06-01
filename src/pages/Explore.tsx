@@ -192,12 +192,12 @@ export default function Explore() {
                       </span>
                     </div>
                     {(!user?._id) ? (
-                      <button 
-                        onClick={() => window.location.href = '/login'}
-                        className="w-full py-3 bg-brand-black dark:bg-white text-white dark:text-brand-black font-bold rounded-xl hover:bg-brand-gold dark:hover:bg-brand-gold transition-colors"
+                      <Link 
+                        to="/login"
+                        className="w-full py-3 bg-brand-black dark:bg-white text-white dark:text-brand-black font-bold rounded-xl hover:bg-brand-gold dark:hover:bg-brand-gold transition-colors flex items-center justify-center"
                       >
                         Login to Book
-                      </button>
+                      </Link>
                     ) : user?.role === 'client' ? (
                       <div className="flex flex-col gap-2">
                         <button 
