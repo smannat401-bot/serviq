@@ -1132,7 +1132,13 @@ export default function WorkerDashboard() {
                                     {booking.status === 'Payment Released' ? 'Payment Released' : booking.status}
                                   </span>
                                 )}
-                                <span className="text-sm font-bold text-green-400">₹{booking.price || '1,250'}</span>
+                                <span className="text-sm font-bold text-green-400">
+                                   {booking.totalPrice 
+                                     ? (booking.totalPrice.toString().startsWith('₹') ? booking.totalPrice : `₹${booking.totalPrice}`) 
+                                     : (booking.basePrice 
+                                         ? (booking.basePrice.toString().startsWith('₹') ? booking.basePrice : `₹${booking.basePrice}`) 
+                                         : '₹1,250')}
+                                </span>
                               </div>
                             </div>
 
