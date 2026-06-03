@@ -50,14 +50,17 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
   try {
     const { status, cancelledBy, cancellationReason } = req.body;
     
+    const existingBooking = await Booking.findById(req.params.id);
+    if (!existingBooking) return res.status(404).json({ message: 'Booking not found' });
+    
+    const originalStatus = existingBooking.status;
     let updateData = { status };
     if (cancelledBy) updateData.cancelledBy = cancelledBy;
     if (cancellationReason) updateData.cancellationReason = cancellationReason;
     
     // Generate a 4-digit code when accepted or in progress (only if not already generated)
     if (status === 'Accepted' || status === 'In Progress') {
-      const existingBooking = await Booking.findById(req.params.id);
-      if (existingBooking && !existingBooking.completionCode) {
+      if (!existingBooking.completionCode) {
         updateData.completionCode = Math.floor(1000 + Math.random() * 9000).toString();
       }
     }
@@ -67,8 +70,6 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
       updateData, 
       { new: true }
     );
-    
-    if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
     // Handle Worker Scoring logic
     if (status === 'Cancelled' && cancelledBy === 'worker') {
@@ -79,7 +80,7 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
         let deduction = 5; // Default for confirmed booking
         
         // If cancelled before confirmation (was Pending)
-        if (booking.status === 'Pending') {
+        if (originalStatus === 'Pending') {
           deduction = 2;
         } else {
           // Check if last-minute (within 2 hours)
@@ -112,10 +113,19 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
         
         await worker.save();
       }
-    } else if (status === 'Declined' && booking.status === 'Pending') {
-      // Worker declined a pending request - small deduction if they do it frequently?
-      // User didn't specify for Declined, but said "frequently rejects bookings after confirmation"
-      // Rejections before confirmation usually don't penalize much, but let's stick to the prompt.
+    } else if (status === 'Declined' && originalStatus === 'Pending') {
+      const worker = await User.findById(booking.worker);
+      if (worker) {
+        const deduction = 2; // Deduct 2 points for declining a pending request
+        worker.honourScore = Math.max(0, (worker.honourScore || 100) - deduction);
+        worker.jobStreak = 0; // Reset streak
+        
+        // Auto block if score reaches 70 or below
+        if (worker.honourScore <= 70) {
+          worker.isBlocked = true;
+        }
+        await worker.save();
+      }
     }
     
     res.json({ message: `Booking marked as ${status}`, booking });
