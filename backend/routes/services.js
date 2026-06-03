@@ -79,8 +79,8 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const worker = await User.findById(req.params.id).select('-password');
-    if (!worker || worker.role !== 'worker' || worker.isBlocked) {
-      return res.status(404).json({ message: 'Professional not found or account suspended' });
+    if (!worker || worker.role !== 'worker') {
+      return res.status(404).json({ message: 'Professional not found' });
     }
     res.json(worker);
   } catch (error) {
@@ -110,13 +110,13 @@ router.post('/:id/review', async (req, res) => {
     worker.averageRating = totalRating / worker.reviews.length;
 
     // HONOR SCORE ADJUSTMENTS
-    if (rating >= 4) {
-      worker.honourScore = Math.min(100, (worker.honourScore || 100) + 1);
+    if (rating === 5) {
+      worker.honourScore = Math.min(100, (worker.honourScore || 100) + 1); // 5-Star Rating: +1
     } else if (rating === 1) {
-      worker.honourScore = Math.max(0, (worker.honourScore || 100) - 10);
+      worker.honourScore = Math.max(0, (worker.honourScore || 100) - 10); // 1-Star Rating: -10
       
-      // Auto block if score reaches 70 or below
-      if (worker.honourScore <= 70) {
+      // Auto block if score falls below 70
+      if (worker.honourScore < 70) {
         worker.isBlocked = true;
       }
     }

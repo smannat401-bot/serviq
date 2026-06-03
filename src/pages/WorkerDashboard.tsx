@@ -22,6 +22,84 @@ export default function WorkerDashboard() {
   const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('serviq_user') || '{}'));
   const user = currentUser; // Alias for compatibility with existing code
 
+  const getHonorStatus = (score: number) => {
+    if (score >= 90) return { label: 'Excellent Partner', bg: 'bg-green-500/15', border: 'border-green-500/25', text: 'text-green-400', glow: 'shadow-[0_0_10px_rgba(16,185,129,0.15)]' };
+    if (score >= 80) return { label: 'Trusted Partner', bg: 'bg-yellow-500/15', border: 'border-yellow-500/25', text: 'text-yellow-400', glow: 'shadow-[0_0_10px_rgba(245,158,11,0.15)]' };
+    if (score >= 70) return { label: 'Warning Zone', bg: 'bg-orange-500/15', border: 'border-orange-500/25', text: 'text-orange-400', glow: 'shadow-[0_0_10px_rgba(249,115,22,0.15)]' };
+    return { label: 'Account Suspended', bg: 'bg-red-500/15', border: 'border-red-500/25', text: 'text-red-400', glow: 'shadow-[0_0_10px_rgba(239,68,68,0.15)]' };
+  };
+
+  const getRecentActivity = () => {
+    const activityList: { text: string; date: Date; points: string; isPositive: boolean }[] = [];
+    
+    // Process bookings
+    bookings.forEach(b => {
+      if (b.status === 'Accepted') {
+        activityList.push({
+          text: 'Booking Accepted',
+          points: '+1',
+          isPositive: true,
+          date: new Date(b.updatedAt || b.createdAt)
+        });
+      } else if (b.status === 'Completed' || b.status === 'Payment Released') {
+        activityList.push({
+          text: 'Job Completed',
+          points: '+2',
+          isPositive: true,
+          date: new Date(b.updatedAt || b.createdAt)
+        });
+      } else if (b.status === 'Declined' || b.status === 'Rejected') {
+        activityList.push({
+          text: 'Booking Rejected',
+          points: '-2',
+          isPositive: false,
+          date: new Date(b.updatedAt || b.createdAt)
+        });
+      } else if (b.status === 'Cancelled' && b.cancelledBy === 'worker') {
+        const isLate = b.cancellationReason !== 'Rejected new booking request';
+        activityList.push({
+          text: isLate ? 'Late Cancellation' : 'Booking Rejected',
+          points: isLate ? '-5' : '-2',
+          isPositive: false,
+          date: new Date(b.updatedAt || b.createdAt)
+        });
+      } else if (b.status === 'Cancelled' && b.cancellationReason === 'No response to booking request') {
+        activityList.push({
+          text: 'No Response to Request',
+          points: '-3',
+          isPositive: false,
+          date: new Date(b.updatedAt || b.createdAt)
+        });
+      }
+    });
+
+    // Process reviews
+    if (user.reviews && Array.isArray(user.reviews)) {
+      user.reviews.forEach((r: any) => {
+        if (r.rating === 5) {
+          activityList.push({
+            text: '5-Star Rating Received',
+            points: '+1',
+            isPositive: true,
+            date: new Date(r.createdAt || Date.now())
+          });
+        } else if (r.rating === 1) {
+          activityList.push({
+            text: '1-Star Rating Received',
+            points: '-10',
+            isPositive: false,
+            date: new Date(r.createdAt || Date.now())
+          });
+        }
+      });
+    }
+
+    // Sort by date descending and limit to top 5
+    return activityList
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 5);
+  };
+
   useEffect(() => {
     if (!currentUser._id) {
       window.location.href = '/login';
@@ -616,12 +694,9 @@ export default function WorkerDashboard() {
           <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 mx-auto mb-8">
             <ShieldOff size={48} />
           </div>
-          <h1 className="text-3xl font-bold text-brand-black dark:text-white mb-4">Account Blocked</h1>
-          <p className="text-red-600 font-bold mb-4">
-            लगातार बुकिंग कैंसिल करने और Honour Score कम होने के कारण आपकी ID ब्लॉक कर दी गई hai.
-          </p>
-          <p className="text-gray-500 mb-8">
-            Your account has been blocked due to repeated booking cancellations and low Honour Score.
+          <h1 className="text-3xl font-bold text-brand-black dark:text-white mb-4">Account Suspended</h1>
+          <p className="text-red-500 font-bold mb-8">
+            Your account has been suspended due to low Honor Score. Please contact support.
           </p>
           <button
             onClick={() => {
@@ -807,11 +882,10 @@ export default function WorkerDashboard() {
                 <p className="text-gray-500 dark:text-gray-400">Here's what's happening with your business today.</p>
 
                 {user.honourScore <= 75 && !user.isBlocked && (
-                  <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-3 animate-pulse">
-                    <AlertTriangle className="text-red-500 shrink-0" size={24} />
+                  <div className="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl flex items-start gap-3 animate-pulse">
+                    <AlertTriangle className="text-yellow-500 shrink-0" size={24} />
                     <div>
-                      <p className="text-red-600 font-bold text-sm">चेतावनी: आपका Honour Score 75 तक पहुँच गया है। लगातार बुकिंग कैंसिल करने से आपकी ID ब्लॉक हो सकती है। कृपया आगे कैंसिलेशन कम करें।</p>
-                      <p className="text-red-500 text-xs font-medium mt-1">Warning: Your Honour Score has reached 75. Repeated booking cancellations may lead to account blocking. Please avoid further cancellations.</p>
+                      <p className="text-yellow-600 dark:text-yellow-400 font-bold text-sm">Warning: Your Honor Score is getting low. Continue providing quality service to avoid suspension.</p>
                     </div>
                   </div>
                 )}
@@ -891,6 +965,18 @@ export default function WorkerDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6 md:space-y-8"
               >
+                {/* Mobile Warning Banner */}
+                {user.honourScore <= 75 && !user.isBlocked && (
+                  <div className="md:hidden p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl flex items-start gap-3 animate-pulse">
+                    <AlertTriangle className="text-yellow-500 shrink-0" size={20} />
+                    <div>
+                      <p className="text-yellow-600 dark:text-yellow-400 font-bold text-xs">
+                        Warning: Your Honor Score is getting low. Continue providing quality service to avoid suspension.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Mobile Greeting Card */}
                 <div className="md:hidden bg-gradient-to-r from-[#0d1627] to-[#050811] border border-blue-500/15 p-5 rounded-3xl flex justify-between items-center shadow-[0_4px_25px_rgba(0,0,0,0.3)]">
                   <div>
@@ -919,7 +1005,7 @@ export default function WorkerDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 glass-card p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
                     <div className="flex-shrink-0">
-                      <HonorScoreMeter score={user.honourScore || 90} size={150} strokeWidth={11} hideLevel={true} />
+                      <HonorScoreMeter score={user.honourScore !== undefined ? user.honourScore : 100} size={150} strokeWidth={11} hideLevel={true} />
                     </div>
                     <div className="flex-grow space-y-3 text-center md:text-left w-full">
                       <div>
@@ -933,13 +1019,39 @@ export default function WorkerDashboard() {
                             <Info size={16} />
                           </button>
                         </h2>
-                        <p className="text-xs md:text-sm text-gray-400 mt-1.5 leading-relaxed">Your Honor Score is monitored by our AI system to ensure quality.</p>
+                        <p className="text-xs md:text-sm text-gray-400 mt-1.5 leading-relaxed">
+                          Honor Score: <span className="font-extrabold text-white text-base">{(user.honourScore !== undefined ? user.honourScore : 100)}/100</span>
+                        </p>
                       </div>
 
                       <div className="flex justify-center md:justify-start">
-                        <div className="inline-flex items-center gap-1.5 bg-green-500/15 border border-green-500/25 text-green-400 text-xs px-3.5 py-1 rounded-full font-bold shadow-[0_0_10px_rgba(16,185,129,0.15)]">
-                          <span>Trusted Worker</span>
-                          <span className="text-[10px]">✓</span>
+                        {(() => {
+                          const status = getHonorStatus(user.honourScore !== undefined ? user.honourScore : 100);
+                          return (
+                            <div className={`inline-flex items-center gap-1.5 ${status.bg} ${status.border} ${status.text} text-xs px-3.5 py-1 rounded-full font-bold ${status.glow}`}>
+                              <span>{status.label}</span>
+                              <span className="text-[10px]">✓</span>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Recent Activity Section */}
+                      <div className="mt-4 pt-4 border-t border-white/5 w-full text-left">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recent Activity</h4>
+                        <div className="space-y-2">
+                          {getRecentActivity().length > 0 ? (
+                            getRecentActivity().map((act, index) => (
+                              <div key={index} className="flex justify-between items-center text-xs">
+                                <span className="text-gray-300">{act.text}</span>
+                                <span className={`font-bold ${act.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                                  {act.points}
+                                </span>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-[11px] text-gray-500 italic">No recent activity</p>
+                          )}
                         </div>
                       </div>
                       

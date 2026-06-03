@@ -6,6 +6,37 @@ const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Auto cancel pending bookings older than 5 minutes as 'No Response'
+const checkPendingTimeouts = async () => {
+  try {
+    const timeoutLimit = 5 * 60 * 1000; // 5 minutes
+    const threshold = new Date(Date.now() - timeoutLimit);
+    const expiredBookings = await Booking.find({
+      status: 'Pending',
+      createdAt: { $lt: threshold }
+    });
+    
+    for (const booking of expiredBookings) {
+      booking.status = 'Cancelled';
+      booking.cancelledBy = 'admin';
+      booking.cancellationReason = 'No response to booking request';
+      await booking.save();
+      
+      const worker = await User.findById(booking.worker);
+      if (worker) {
+        worker.honourScore = Math.max(0, (worker.honourScore || 100) - 3); // -3 for no response
+        worker.jobStreak = 0; // Reset streak
+        if (worker.honourScore < 70) {
+          worker.isBlocked = true;
+        }
+        await worker.save();
+      }
+    }
+  } catch (err) {
+    console.error('Error auto-cancelling timed out bookings:', err);
+  }
+};
+
 // Create a new booking
 router.post('/', verifyToken, async (req, res) => {
   try {
@@ -23,6 +54,7 @@ router.post('/', verifyToken, async (req, res) => {
 // Get bookings for a specific client
 router.get('/client/:clientId', verifyToken, async (req, res) => {
   try {
+    await checkPendingTimeouts();
     const bookings = await Booking.find({ client: req.params.clientId })
       .populate('worker', 'name skill phone')
       .sort({ createdAt: -1 });
@@ -35,6 +67,7 @@ router.get('/client/:clientId', verifyToken, async (req, res) => {
 // Get bookings for a specific worker
 router.get('/worker/:workerId', verifyToken, async (req, res) => {
   try {
+    await checkPendingTimeouts();
     const bookings = await Booking.find({ worker: req.params.workerId })
       .populate('client', 'name phone')
       .sort({ createdAt: -1 });
@@ -77,56 +110,38 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
       if (worker) {
         worker.cancellationCount = (worker.cancellationCount || 0) + 1;
         
-        let deduction = 5; // Default for confirmed booking
-        
-        // If cancelled before confirmation (was Pending)
-        if (originalStatus === 'Pending') {
-          deduction = 2;
-        } else {
-          // Check if last-minute (within 2 hours)
-          try {
-            const appointmentDate = new Date(`${booking.date} ${booking.time}`);
-            const now = new Date();
-            const diffMs = appointmentDate - now;
-            const diffHrs = diffMs / (1000 * 60 * 60);
-            
-            if (diffHrs < 2) {
-              deduction = 8;
-            }
-          } catch (e) {
-            console.error("Error calculating cancellation time:", e);
-          }
-        }
-        
-        // Repeated cancellations bonus deduction
-        if (worker.cancellationCount > 3) {
-          deduction += 2;
-        }
-
+        // Late Cancellation: -5 if it was already confirmed/accepted; -2 if it was Pending
+        const deduction = originalStatus === 'Pending' ? 2 : 5;
         worker.honourScore = Math.max(0, (worker.honourScore || 100) - deduction);
-        worker.jobStreak = 0; // Reset streak on cancellation
+        worker.jobStreak = 0; // Reset streak
         
-        // Auto block on 6th cancellation or when score reaches 70
-        if (worker.cancellationCount >= 6 || worker.honourScore <= 70) {
+        if (worker.honourScore < 70) {
           worker.isBlocked = true;
+          console.log(`WORKER ${worker.name} HAS BEEN BLOCKED DUE TO HONOUR SCORE < 70`);
         }
-        
         await worker.save();
       }
-    } else if (status === 'Declined' && originalStatus === 'Pending') {
+    } else if ((status === 'Declined' || status === 'Rejected') && originalStatus === 'Pending') {
       const worker = await User.findById(booking.worker);
       if (worker) {
-        const deduction = 2; // Deduct 2 points for declining a pending request
+        const deduction = 2; // Booking Rejected: -2
         const oldScore = worker.honourScore || 100;
         worker.honourScore = Math.max(0, oldScore - deduction);
         worker.jobStreak = 0; // Reset streak
         console.log(`WORKER ${worker.name} DECLINED REQUEST. HONOUR SCORE DECREASED FROM ${oldScore} TO ${worker.honourScore}`);
         
-        // Auto block if score reaches 70 or below
-        if (worker.honourScore <= 70) {
+        if (worker.honourScore < 70) {
           worker.isBlocked = true;
-          console.log(`WORKER ${worker.name} HAS BEEN BLOCKED DUE TO HONOUR SCORE <= 70`);
+          console.log(`WORKER ${worker.name} HAS BEEN BLOCKED DUE TO HONOUR SCORE < 70`);
         }
+        await worker.save();
+      }
+    } else if (status === 'Accepted' && originalStatus === 'Pending') {
+      const worker = await User.findById(booking.worker);
+      if (worker) {
+        const oldScore = worker.honourScore || 100;
+        worker.honourScore = Math.min(100, oldScore + 1); // Booking Accepted: +1
+        console.log(`WORKER ${worker.name} ACCEPTED REQUEST. HONOUR SCORE INCREASED FROM ${oldScore} TO ${worker.honourScore}`);
         await worker.save();
       }
     }
@@ -168,9 +183,9 @@ router.patch('/:id/complete', verifyToken, async (req, res) => {
       worker.jobStreak = (worker.jobStreak || 0) + 1;
       worker.totalCompletedJobs = (worker.totalCompletedJobs || 0) + 1;
       
-      // 10 successful jobs streak = +5 bonus points
-      if (worker.jobStreak > 0 && worker.jobStreak % 10 === 0) {
-        worker.honourScore = Math.min(100, worker.honourScore + 5);
+      // 5 successful jobs streak = +3 bonus points
+      if (worker.jobStreak > 0 && worker.jobStreak % 5 === 0) {
+        worker.honourScore = Math.min(100, worker.honourScore + 3);
       }
 
       await worker.save();

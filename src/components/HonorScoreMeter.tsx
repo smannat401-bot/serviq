@@ -27,19 +27,16 @@ const HonorScoreMeter: React.FC<HonorScoreMeterProps> = ({
   }, [score]);
 
   const getColor = (s: number) => {
-    if (s >= 90) return '#10b981'; // Emerald 500
-    if (s >= 80) return '#3b82f6'; // Blue 500
-    if (s >= 75) return '#f59e0b'; // Amber 500
-    if (s >= 70) return '#f97316'; // Orange 500
-    return '#ef4444'; // Red 500
+    if (s >= 90) return '#10b981'; // Green
+    if (s >= 70) return '#f59e0b'; // Yellow
+    return '#ef4444'; // Red
   };
 
   const getLevel = (s: number) => {
-    if (s >= 90) return 'Trusted';
-    if (s >= 80) return 'Good';
-    if (s >= 75) return 'Warning';
-    if (s >= 70) return 'Critical';
-    return 'Suspended';
+    if (s >= 90) return 'Excellent Partner';
+    if (s >= 80) return 'Trusted Partner';
+    if (s >= 70) return 'Warning Zone';
+    return 'Account Suspended';
   };
 
   const color = getColor(displayScore);

@@ -118,9 +118,9 @@ router.post('/google', async (req, res) => {
     }
 
     // Check if blocked
-    if (user.isBlocked || (user.role === 'worker' && user.honourScore <= 70)) {
+    if (user.isBlocked || (user.role === 'worker' && user.honourScore < 70)) {
       return res.status(403).json({ 
-        message: 'Your account has been suspended.',
+        message: 'Your account has been suspended due to low Honor Score. Please contact support.',
         isBlocked: true
       });
     }
@@ -228,9 +228,9 @@ router.post('/login', async (req, res) => {
     resetAttempts(email);
 
     // Check if account is blocked/suspended
-    if (user.isBlocked || (user.role === 'worker' && user.honourScore <= 70)) {
+    if (user.isBlocked || (user.role === 'worker' && user.honourScore < 70)) {
       return res.status(403).json({
-        message: 'Your account has been suspended due to a low Honor Score or repeated cancellations. Please contact support for review.',
+        message: 'Your account has been suspended due to low Honor Score. Please contact support.',
         isBlocked: true
       });
     }
