@@ -1179,14 +1179,25 @@ export default function WorkerDashboard() {
 
                                 {/* Action Buttons */}
                                 <div className="flex flex-wrap items-center gap-2 pt-2">
-                                  {booking.client?.phone && (
-                                    <a 
-                                      href={`tel:${booking.client.phone}`}
-                                      className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all"
-                                    >
-                                      <Phone size={14} /> Call Client
-                                    </a>
-                                  )}
+                                  {booking.client?.phone && (() => {
+                                    const completedStates = ['Completed', 'Code Verified', 'Payment Released', 'Closed'];
+                                    if (completedStates.includes(booking.status)) {
+                                      const updatedAtTime = new Date(booking.updatedAt).getTime();
+                                      const nowTime = new Date().getTime();
+                                      const fiveMinutes = 5 * 60 * 1000;
+                                      if (nowTime - updatedAtTime >= fiveMinutes) {
+                                        return null;
+                                      }
+                                    }
+                                    return (
+                                      <a 
+                                        href={`tel:${booking.client.phone}`}
+                                        className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all"
+                                      >
+                                        <Phone size={14} /> Call Client
+                                      </a>
+                                    );
+                                  })()}
 
                                   {booking.client && (
                                     <button 
@@ -1217,17 +1228,29 @@ export default function WorkerDashboard() {
 
                                   {booking.status === 'In Progress' && (
                                     <button 
-                                      onClick={() => setSelectedBookingForCompletion(booking._id)}
+                                      onClick={() => {
+                                        if (booking.paymentStatus === 'Held in Trust') {
+                                          setSelectedBookingForCompletion(booking._id);
+                                        } else {
+                                          handleUpdateStatus(booking._id, 'Waiting For Payment');
+                                        }
+                                      }}
                                       className="ml-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all"
                                     >
-                                      Complete Work
+                                      {booking.paymentStatus === 'Held in Trust' ? 'Complete Work' : 'Request Payment'}
                                     </button>
                                   )}
 
-                                  {booking.status === 'Work Completed' && (
+                                  {booking.status === 'Waiting For Payment' && (
+                                    <span className="ml-auto text-xs font-bold text-yellow-500 animate-pulse">
+                                      Waiting for Client Payment...
+                                    </span>
+                                  )}
+
+                                  {['Waiting For Code', 'Work Completed'].includes(booking.status) && (
                                     <button 
                                       onClick={() => setSelectedBookingForCompletion(booking._id)}
-                                      className="ml-auto px-4 py-2 bg-blue-500 hover:bg-blue-650 text-white rounded-xl text-xs font-bold transition-all animate-pulse"
+                                      className="ml-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all animate-pulse"
                                     >
                                       Verify Code
                                     </button>
