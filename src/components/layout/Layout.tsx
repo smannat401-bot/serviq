@@ -15,16 +15,16 @@ interface LayoutProps {
 export default function Layout({ children, darkMode, toggleDarkMode }: LayoutProps) {
   const location = useLocation();
   const path = location.pathname.replace(/\/$/, ''); // Remove trailing slash
-  const hideGlobalBottomNav = ['/client-dashboard', '/worker-dashboard', '/admin-dashboard'].some(dashboardPath => path === dashboardPath || path.startsWith(dashboardPath + '/'));
+  const isDashboardRoute = ['/client-dashboard', '/worker-dashboard', '/admin-dashboard'].some(dashboardPath => path === dashboardPath || path.startsWith(dashboardPath + '/'));
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-white dark:bg-brand-darkBlue transition-colors duration-300">
-      <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-      <main className={`flex-grow mt-16 lg:mt-24 ${hideGlobalBottomNav ? 'pb-0' : 'pb-20 lg:pb-0'}`}>
+      {!isDashboardRoute && <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
+      <main className={`flex-grow ${isDashboardRoute ? 'mt-0 pb-0' : 'mt-16 lg:mt-24 pb-20 lg:pb-0'}`}>
         {children}
       </main>
-      <Footer />
-      {!hideGlobalBottomNav && <BottomNav />}
+      {!isDashboardRoute && <Footer />}
+      {!isDashboardRoute && <BottomNav />}
       <AIChatWidget />
       <CookieConsent />
     </div>
