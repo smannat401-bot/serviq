@@ -428,6 +428,7 @@ export default function WorkerDashboard() {
       });
       if (res.ok) {
         fetchBookings();
+        refreshUserData();
       }
     } catch (err) {
       console.error('Error declining booking', err);
@@ -443,6 +444,7 @@ export default function WorkerDashboard() {
       });
       if (res.ok) {
         fetchBookings();
+        refreshUserData();
       } else {
         const data = await res.json();
         alert('Update failed: ' + (data.message || 'Server error'));
@@ -478,6 +480,7 @@ export default function WorkerDashboard() {
       });
       if (res.ok) {
         fetchBookings();
+        refreshUserData();
       } else {
         const data = await res.json();
         alert('Accept failed: ' + (data.message || 'Server error'));
@@ -2045,7 +2048,10 @@ export default function WorkerDashboard() {
           isOpen={!!selectedBookingForCompletion}
           onClose={() => setSelectedBookingForCompletion(null)}
           bookingId={selectedBookingForCompletion}
-          onSuccess={fetchBookings}
+          onSuccess={() => {
+            fetchBookings();
+            refreshUserData();
+          }}
         />
       )}
 

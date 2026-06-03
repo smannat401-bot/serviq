@@ -117,12 +117,15 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
       const worker = await User.findById(booking.worker);
       if (worker) {
         const deduction = 2; // Deduct 2 points for declining a pending request
-        worker.honourScore = Math.max(0, (worker.honourScore || 100) - deduction);
+        const oldScore = worker.honourScore || 100;
+        worker.honourScore = Math.max(0, oldScore - deduction);
         worker.jobStreak = 0; // Reset streak
+        console.log(`WORKER ${worker.name} DECLINED REQUEST. HONOUR SCORE DECREASED FROM ${oldScore} TO ${worker.honourScore}`);
         
         // Auto block if score reaches 70 or below
         if (worker.honourScore <= 70) {
           worker.isBlocked = true;
+          console.log(`WORKER ${worker.name} HAS BEEN BLOCKED DUE TO HONOUR SCORE <= 70`);
         }
         await worker.save();
       }
