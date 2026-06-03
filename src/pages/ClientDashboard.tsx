@@ -42,6 +42,65 @@ const getCoordinatesForAddress = async (address: string, token: string): Promise
   return { lat: 19.1308, lon: 72.8292 };
 };
 
+const getLevenshteinDistance = (a: string, b: string): number => {
+  const tmp = [];
+  let i, j;
+  for (i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (i = 1; i <= a.length; i++) {
+    for (j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1, // deletion
+        tmp[i][j - 1] + 1, // insertion
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // substitution
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+};
+
+const isFuzzyMatch = (text: string, query: string): boolean => {
+  const cleanText = text.toLowerCase().trim();
+  const cleanQuery = query.toLowerCase().trim();
+  if (cleanText.includes(cleanQuery) || cleanQuery.includes(cleanText)) return true;
+
+  const textWords = cleanText.split(/\s+/);
+  const queryWords = cleanQuery.split(/\s+/);
+
+  let matchCount = 0;
+  for (const qWord of queryWords) {
+    if (qWord.length < 3) {
+      if (textWords.some(tWord => tWord.includes(qWord) || qWord.includes(tWord))) {
+        matchCount++;
+      }
+      continue;
+    }
+
+    let bestDist = 999;
+    for (const tWord of textWords) {
+      if (tWord.includes(qWord) || qWord.includes(tWord)) {
+        bestDist = 0;
+        break;
+      }
+      const dist = getLevenshteinDistance(qWord, tWord);
+      if (dist < bestDist) {
+        bestDist = dist;
+      }
+    }
+
+    const limit = qWord.length <= 5 ? 1 : 2;
+    if (bestDist <= limit) {
+      matchCount++;
+    }
+  }
+
+  return matchCount >= queryWords.length / 2;
+};
+
 export default function ClientDashboard() {
   const user = JSON.parse(localStorage.getItem('serviq_user') || '{}');
 
@@ -563,9 +622,9 @@ export default function ClientDashboard() {
     .filter(w => !w.isBlocked && (w.honourScore === undefined || w.honourScore > 70))
     .filter(w => {
       const matchQ = !searchQuery || 
-        w.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        w.skill?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (w.catalog || []).some((s: any) => s.title.toLowerCase().includes(searchQuery.toLowerCase()));
+        isFuzzyMatch(w.name, searchQuery) || 
+        isFuzzyMatch(w.skill || '', searchQuery) ||
+        (w.catalog || []).some((s: any) => isFuzzyMatch(s.title, searchQuery));
       return matchQ;
     })
     .map(w => {
