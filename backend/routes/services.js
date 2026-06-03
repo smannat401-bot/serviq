@@ -153,6 +153,18 @@ router.post('/request', async (req, res) => {
     });
 
     await notification.save();
+
+    // Emit Real-time notification
+    const io = req.app.get('io');
+    const userSockets = req.app.get('userSockets');
+    const workerSocketId = userSockets[workerId];
+    if (workerSocketId) {
+      console.log(`Emitting new_service_request to worker socket: ${workerSocketId}`);
+      io.to(workerSocketId).emit('new_service_request', {
+        notification: notification
+      });
+    }
+
     res.status(201).json({ message: 'Service request sent successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

@@ -249,6 +249,10 @@ export default function WorkerDashboard() {
   const [newServiceName, setNewServiceName] = useState('');
   const [newServicePrice, setNewServicePrice] = useState('');
   const [newServiceDescription, setNewServiceDescription] = useState('');
+  const [expandedRequestId, setExpandedRequestId] = useState<string | null>(null);
+  const [inlineServicePrice, setInlineServicePrice] = useState('');
+  const [inlineServiceDescription, setInlineServiceDescription] = useState('');
+  const [isAddingInlineService, setIsAddingInlineService] = useState(false);
 
   // Schedule State
   const [availabilityDays, setAvailabilityDays] = useState<string[]>(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
@@ -352,8 +356,15 @@ export default function WorkerDashboard() {
         setIncomingBooking(data.booking);
       });
 
+      socket.on('new_service_request', (data: any) => {
+        console.log('REAL-TIME SERVICE REQUEST RECEIVED:', data);
+        // Add to notifications
+        setNotifications(prev => [data.notification, ...prev]);
+      });
+
       return () => {
         socket.off('new_booking');
+        socket.off('new_service_request');
       };
     }
   }, [socket]);
@@ -666,6 +677,36 @@ export default function WorkerDashboard() {
     }
   };
 
+  const handleAddInlineService = async (notificationId: string, serviceTitle: string) => {
+    if (!inlineServicePrice || !user._id) return;
+    setIsAddingInlineService(true);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/catalog/${user._id}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: serviceTitle,
+          price: parseFloat(inlineServicePrice.replace(/[^0-9.-]+/g, "")) || 0,
+          description: inlineServiceDescription
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setServices(data.catalog);
+        await markNotificationRead(notificationId);
+        // Clear inline inputs
+        setExpandedRequestId(null);
+        setInlineServicePrice('');
+        setInlineServiceDescription('');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsAddingInlineService(false);
+    }
+  };
+
   const removeService = async (id: string) => {
     if (user._id) {
       try {
@@ -803,7 +844,9 @@ export default function WorkerDashboard() {
                     className="p-2 rounded-full text-gray-600 dark:text-gray-300 relative"
                   >
                     <Bell size={20} />
-                    <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-[#0a0a0a] rounded-full"></span>
+                    {notifications.some(n => !n.isRead) && (
+                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-[#0a0a0a] dark:border-[#0f172a] rounded-full"></span>
+                    )}
                   </button>
                   <button
                     onClick={toggleDarkMode}
@@ -849,7 +892,7 @@ export default function WorkerDashboard() {
                                 markNotificationRead(n._id);
                                 if (n.type === 'service_request') {
                                   changeTab('Services');
-                                  setNewServiceName(n.relatedId);
+                                  setExpandedRequestId(n._id);
                                 }
                                 setShowNotificationPanel(false);
                               }}
@@ -932,7 +975,7 @@ export default function WorkerDashboard() {
                               markNotificationRead(n._id);
                               if (n.type === 'service_request') {
                                 changeTab('Services');
-                                setNewServiceName(n.relatedId);
+                                setExpandedRequestId(n._id);
                               }
                               setShowNotificationPanel(false);
                             }}
@@ -1423,23 +1466,80 @@ export default function WorkerDashboard() {
                       New Service Requests
                     </h2>
                     <div className="space-y-3">
-                      {notifications.filter(n => n.type === 'service_request' && !n.isRead).map(req => (
-                        <div key={req._id} className="flex justify-between items-center p-4 bg-white dark:bg-black/20 rounded-2xl border border-brand-gold/10">
-                          <div>
-                            <p className="font-bold text-brand-black dark:text-white">{req.relatedId}</p>
-                            <p className="text-xs text-gray-500">Requested by client</p>
+                      {notifications.filter(n => n.type === 'service_request' && !n.isRead).map(req => {
+                        const isExpanded = expandedRequestId === req._id;
+                        return (
+                          <div key={req._id} className="p-4 bg-white dark:bg-black/20 rounded-2xl border border-brand-gold/10 flex flex-col gap-3 transition-all duration-300">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <p className="font-bold text-brand-black dark:text-white">{req.relatedId}</p>
+                                <p className="text-xs text-gray-500">{req.messageEn}</p>
+                              </div>
+                              {!isExpanded && (
+                                <div className="flex gap-2">
+                                  <button 
+                                    onClick={() => {
+                                      setExpandedRequestId(req._id);
+                                      setInlineServicePrice('');
+                                      setInlineServiceDescription('');
+                                    }}
+                                    className="px-4 py-2 bg-brand-gold text-brand-black font-bold rounded-lg text-xs hover:scale-105 transition-all"
+                                  >
+                                    Add Service
+                                  </button>
+                                  <button 
+                                    onClick={() => markNotificationRead(req._id)}
+                                    className="px-3 py-2 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 font-medium rounded-lg text-xs hover:bg-red-500/10 hover:text-red-500 transition-all"
+                                  >
+                                    Dismiss
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            {isExpanded && (
+                              <div className="mt-2 pt-3 border-t border-gray-100 dark:border-gray-800 space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Set Price (₹)</label>
+                                    <input 
+                                      type="text"
+                                      placeholder="e.g. ₹500 or ₹1200 fixed"
+                                      value={inlineServicePrice}
+                                      onChange={(e) => setInlineServicePrice(e.target.value)}
+                                      className="w-full px-3 py-2 text-sm rounded-xl bg-gray-50 dark:bg-[#0a0f1d] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none text-brand-black dark:text-white font-medium"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Service Description (Optional)</label>
+                                    <input 
+                                      type="text"
+                                      placeholder="What does this service include?"
+                                      value={inlineServiceDescription}
+                                      onChange={(e) => setInlineServiceDescription(e.target.value)}
+                                      className="w-full px-3 py-2 text-sm rounded-xl bg-gray-50 dark:bg-[#0a0f1d] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none text-brand-black dark:text-white font-medium"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex justify-end gap-2 pt-1">
+                                  <button
+                                    onClick={() => setExpandedRequestId(null)}
+                                    className="px-4 py-2 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={() => handleAddInlineService(req._id, req.relatedId)}
+                                    disabled={!inlineServicePrice || isAddingInlineService}
+                                    className="px-5 py-2 bg-brand-electricBlue hover:bg-blue-600 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-colors shadow-lg shadow-brand-electricBlue/20"
+                                  >
+                                    {isAddingInlineService ? 'Saving...' : 'Save & Add to Catalog'}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          <button 
-                            onClick={() => {
-                              setNewServiceName(req.relatedId);
-                              markNotificationRead(req._id);
-                            }}
-                            className="px-4 py-2 bg-brand-gold text-brand-black font-bold rounded-lg text-xs hover:scale-105 transition-all"
-                          >
-                            Add This Service
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
