@@ -8,6 +8,10 @@ export default function BottomNav() {
 
   const isWorker = user?.role === 'worker';
 
+  if (isWorker) {
+    return null;
+  }
+
   const getDashboardPath = (tabName: string) => {
     if (!user) return '/login';
     const rolePath = user.role === 'worker' ? 'worker-dashboard' : user.role === 'admin' ? 'admin-dashboard' : 'client-dashboard';

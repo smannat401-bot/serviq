@@ -80,7 +80,7 @@ export default function AIChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-24 lg:bottom-6 right-6 z-[9999]">
+    <div className="fixed bottom-32 lg:bottom-6 right-6 z-[9999]">
       <AnimatePresence>
         {isOpen && (
           <motion.div
