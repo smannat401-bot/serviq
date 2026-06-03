@@ -199,6 +199,7 @@ export default function WorkerDashboard() {
   const [freeDistanceLimit, setFreeDistanceLimit] = useState(user.freeDistanceLimit || 0);
   const [isSavingPricing, setIsSavingPricing] = useState(false);
   const [pricingMessage, setPricingMessage] = useState('');
+  const [previewDistance, setPreviewDistance] = useState(10);
 
   // Messages State
   const [conversations, setConversations] = useState<any[]>([]);
@@ -395,7 +396,12 @@ export default function WorkerDashboard() {
       const res = await fetch(`${API_URL}/api/auth/pricing/${user._id}`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ baseCharge, distanceRate, travelFee, freeDistanceLimit })
+        body: JSON.stringify({
+          baseCharge: baseCharge || 0,
+          distanceRate: distanceRate || 0,
+          travelFee: travelFee || 0,
+          freeDistanceLimit: freeDistanceLimit || 0
+        })
       });
       const data = await res.json();
       if (res.ok) {
@@ -1564,8 +1570,8 @@ export default function WorkerDashboard() {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Base Service Charge (₹)</label>
                         <input
                           type="number"
-                          value={baseCharge}
-                          onChange={(e) => setBaseCharge(parseFloat(e.target.value))}
+                          value={Number.isNaN(baseCharge) ? '' : baseCharge}
+                          onChange={(e) => setBaseCharge(e.target.value === '' ? NaN : parseFloat(e.target.value))}
                           className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none text-brand-black dark:text-white"
                           placeholder="e.g. 50"
                         />
@@ -1575,8 +1581,8 @@ export default function WorkerDashboard() {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Travel Fee (₹)</label>
                         <input
                           type="number"
-                          value={travelFee}
-                          onChange={(e) => setTravelFee(parseFloat(e.target.value))}
+                          value={Number.isNaN(travelFee) ? '' : travelFee}
+                          onChange={(e) => setTravelFee(e.target.value === '' ? NaN : parseFloat(e.target.value))}
                           className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none text-brand-black dark:text-white"
                           placeholder="e.g. 10"
                         />
@@ -1586,8 +1592,8 @@ export default function WorkerDashboard() {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Free Distance Limit (km)</label>
                         <input
                           type="number"
-                          value={freeDistanceLimit}
-                          onChange={(e) => setFreeDistanceLimit(parseFloat(e.target.value))}
+                          value={Number.isNaN(freeDistanceLimit) ? '' : freeDistanceLimit}
+                          onChange={(e) => setFreeDistanceLimit(e.target.value === '' ? NaN : parseFloat(e.target.value))}
                           className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none text-brand-black dark:text-white"
                           placeholder="e.g. 5"
                         />
@@ -1597,8 +1603,8 @@ export default function WorkerDashboard() {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distance Charge (₹ per km)</label>
                         <input
                           type="number"
-                          value={distanceRate}
-                          onChange={(e) => setDistanceRate(parseFloat(e.target.value))}
+                          value={Number.isNaN(distanceRate) ? '' : distanceRate}
+                          onChange={(e) => setDistanceRate(e.target.value === '' ? NaN : parseFloat(e.target.value))}
                           className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-brand-electricBlue outline-none text-brand-black dark:text-white"
                           placeholder="e.g. 2"
                         />
@@ -1606,14 +1612,27 @@ export default function WorkerDashboard() {
                       </div>
                     </div>
 
-                    <div className="bg-brand-electricBlue/5 p-6 rounded-2xl border border-brand-electricBlue/10">
-                      <h4 className="font-bold text-brand-black dark:text-white mb-2 flex items-center gap-2">
-                        <IndianRupee size={18} className="text-brand-electricBlue" /> Pricing Preview
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        If a client books you from 10km away: <br />
-                        <span className="font-bold text-brand-black dark:text-white">
-                          ₹{baseCharge} (Base) + ₹{travelFee} (Travel) + ₹{Math.max(0, 10 - freeDistanceLimit) * distanceRate} (Extra Distance: {Math.max(0, 10 - freeDistanceLimit)}km) = ₹{(baseCharge || 0) + (travelFee || 0) + (Math.max(0, 10 - freeDistanceLimit) * distanceRate || 0)}
+                    <div className="bg-brand-electricBlue/5 p-6 rounded-2xl border border-brand-electricBlue/10 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h4 className="font-bold text-brand-black dark:text-white flex items-center gap-2">
+                          <IndianRupee size={18} className="text-brand-electricBlue" /> Pricing Preview
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">Test Distance (km):</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={previewDistance}
+                            onChange={(e) => setPreviewDistance(parseFloat(e.target.value) || 0)}
+                            className="w-24 px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-850 text-brand-black dark:text-white outline-none focus:ring-1 focus:ring-brand-electricBlue font-bold"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        If a client books you from <span className="font-extrabold text-brand-electricBlue">{previewDistance} km</span> away: <br />
+                        <span className="font-bold text-brand-black dark:text-white mt-1 block">
+                          ₹{baseCharge || 0} (Base) + ₹{travelFee || 0} (Travel) + ₹{Math.max(0, previewDistance - (freeDistanceLimit || 0)) * (distanceRate || 0)} (Extra Distance: {Math.max(0, previewDistance - (freeDistanceLimit || 0)).toFixed(1)}km) = ₹{((baseCharge || 0) + (travelFee || 0) + (Math.max(0, previewDistance - (freeDistanceLimit || 0)) * (distanceRate || 0))).toFixed(2)}
                         </span>
                       </p>
                     </div>
