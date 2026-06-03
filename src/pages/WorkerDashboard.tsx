@@ -1128,9 +1128,19 @@ export default function WorkerDashboard() {
                                     </button>
                                   </div>
                                 ) : (
-                                  <span className="px-2.5 py-0.5 rounded bg-blue-500/15 text-blue-400 text-[10px] font-bold border border-blue-500/20">
-                                    {booking.status === 'Payment Released' ? 'Payment Released' : booking.status}
-                                  </span>
+                                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                    {['Waiting For Code', 'Work Completed'].includes(booking.status) && (
+                                      <button 
+                                        onClick={() => setSelectedBookingForCompletion(booking._id)}
+                                        className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold transition-all animate-pulse"
+                                      >
+                                        Verify Code
+                                      </button>
+                                    )}
+                                    <span className="px-2.5 py-0.5 rounded bg-blue-500/15 text-blue-400 text-[10px] font-bold border border-blue-500/20">
+                                      {booking.status === 'Payment Released' ? 'Payment Released' : booking.status}
+                                    </span>
+                                  </div>
                                 )}
                                 <span className="text-sm font-bold text-green-400">
                                    {booking.totalPrice 
