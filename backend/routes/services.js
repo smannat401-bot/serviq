@@ -123,9 +123,9 @@ router.post('/:id/review', async (req, res) => {
 
     await worker.save();
 
-    // Mark booking as reviewed
+    // Mark booking as reviewed and close it
     if (bookingId) {
-      await Booking.findByIdAndUpdate(bookingId, { isReviewed: true });
+      await Booking.findByIdAndUpdate(bookingId, { isReviewed: true, status: 'Closed' });
     }
 
     res.json({ message: 'Review added successfully', averageRating: worker.averageRating });

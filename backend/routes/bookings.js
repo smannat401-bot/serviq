@@ -54,10 +54,10 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
     if (cancelledBy) updateData.cancelledBy = cancelledBy;
     if (cancellationReason) updateData.cancellationReason = cancellationReason;
     
-    // Generate a 4-digit code when accepted (only if not already generated)
-    if (status === 'Accepted') {
+    // Generate a 4-digit code when accepted or in progress (only if not already generated)
+    if (status === 'Accepted' || status === 'In Progress') {
       const existingBooking = await Booking.findById(req.params.id);
-      if (!existingBooking.completionCode) {
+      if (existingBooking && !existingBooking.completionCode) {
         updateData.completionCode = Math.floor(1000 + Math.random() * 9000).toString();
       }
     }

@@ -581,11 +581,11 @@ export default function ClientDashboard() {
 
   const filteredBookings = bookings.filter((b: any) => {
     if (bookingFilter === 'Upcoming') {
-      return ['Accepted', 'On The Way', 'Working', 'Waiting For Code', 'Pending', 'Waiting For Payment'].includes(b.status);
+      return ['Pending', 'Accepted', 'In Progress', 'Work Completed', 'On The Way', 'Working', 'Waiting For Code', 'Waiting For Payment'].includes(b.status);
     } else if (bookingFilter === 'Completed') {
-      return b.status === 'Completed';
+      return ['Completed', 'Code Verified', 'Payment Released', 'Closed'].includes(b.status);
     } else if (bookingFilter === 'Cancelled') {
-      return b.status === 'Cancelled' || b.status === 'Declined';
+      return ['Cancelled', 'Declined', 'Disputed'].includes(b.status);
     }
     return true;
   });
@@ -838,13 +838,13 @@ export default function ClientDashboard() {
                               <CreditCard size={12} /> Pay Now
                             </button>
                           )}
-                          {['Accepted', 'On The Way', 'Working', 'Waiting For Code'].includes(booking.status) && booking.completionCode && (
+                          {['Accepted', 'In Progress', 'Work Completed', 'On The Way', 'Working', 'Waiting For Code'].includes(booking.status) && booking.completionCode && (
                             <div className="mt-2 bg-[#030712] border border-white/5 p-2 rounded-xl">
                               <span className="text-[9px] text-gray-500 block mb-1">Give this code to worker to release payment:</span>
                               <span className="text-xs font-extrabold text-blue-400 tracking-widest">{booking.completionCode}</span>
                             </div>
                           )}
-                          {booking.status === 'Completed' && !booking.isReviewed && (
+                          {['Completed', 'Code Verified', 'Payment Released', 'Closed'].includes(booking.status) && !booking.isReviewed && (
                             <button 
                               onClick={() => setSelectedBookingForReview(booking)}
                               className="mt-2 text-[9px] font-bold text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-amber-500/20"

@@ -6,7 +6,7 @@ import {
   MessageSquare, Bell, CheckCircle, XCircle,
   Plus, Tag, Trash2, User, MapPin, Clock, Edit3, LogOut, Phone, Upload, Trash, AlertTriangle, ShieldOff, Info, ArrowLeft, ChevronRight, Menu, ChevronDown,
   Home, Compass, LayoutDashboard, Settings, Sun, Moon,
-  Wallet, Shield, FileText, X, Bot
+  Wallet, Shield, FileText, X, Bot, Navigation, BadgeCheck
 } from 'lucide-react';
 
 
@@ -162,6 +162,7 @@ export default function WorkerDashboard() {
   const [selectedMapJob, setSelectedMapJob] = useState<any | null>(null);
   const [selectedBookingForCompletion, setSelectedBookingForCompletion] = useState<string | null>(null);
   const [selectedBookingForCancellation, setSelectedBookingForCancellation] = useState<string | null>(null);
+  const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
   const [incomingBooking, setIncomingBooking] = useState<any | null>(null);
   const [bookings, setBookings] = useState<any[]>([]);
 
@@ -433,18 +434,40 @@ export default function WorkerDashboard() {
     }
   };
 
-  // const handleUpdateStatus = async (bookingId: string, status: string) => {
-  //   try {
-  //     const res = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
-  //       method: 'PATCH',
-  //       headers: getAuthHeaders(),
-  //       body: JSON.stringify({ status })
-  //     });
-  //     if (res.ok) fetchBookings();
-  //   } catch (err) {
-  //     console.error('Error updating status', err);
-  //   }
-  // };
+  const handleUpdateStatus = async (bookingId: string, status: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        fetchBookings();
+      } else {
+        const data = await res.json();
+        alert('Update failed: ' + (data.message || 'Server error'));
+      }
+    } catch (err: any) {
+      console.error('Error updating status', err);
+      alert('Network Error: ' + err.message);
+    }
+  };
+
+  const handleStartChat = (booking: any) => {
+    if (!booking.client) {
+      alert("No client details available for chat.");
+      return;
+    }
+    setSelectedChat({
+      bookingId: booking._id,
+      otherUser: {
+        _id: booking.client._id,
+        name: booking.client.name,
+        phone: booking.client.phone
+      }
+    });
+    setActiveTab('messages');
+  };
 
   const handleAcceptBooking = async (bookingId: string) => {
     try {
@@ -1064,42 +1087,157 @@ export default function WorkerDashboard() {
                         </div>
                       </div>
                     ) : (
-                      bookings.map((booking) => (
-                        <div key={booking._id} className="flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-[#030712]/40 hover:bg-white/5 transition-all gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 font-extrabold text-base">
-                              {booking.client?.name ? booking.client.name.charAt(0).toUpperCase() : 'T'}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-bold text-white text-sm">{booking.client?.name || 'Tushar Bhatt'}</h4>
-                                {booking.status === 'Pending' && (
-                                  <span className="px-2 py-0.5 rounded bg-green-500/20 border border-green-500/30 text-green-400 text-[9px] font-bold uppercase tracking-wider">New</span>
+                      bookings.map((booking) => {
+                        const isExpanded = expandedBookingId === booking._id;
+                        const hasClientDetails = ['Accepted', 'In Progress', 'Work Completed', 'Code Verified', 'Payment Released', 'Closed'].includes(booking.status);
+                        
+                        return (
+                          <div 
+                            key={booking._id} 
+                            onClick={() => {
+                              if (hasClientDetails) {
+                                setExpandedBookingId(isExpanded ? null : booking._id);
+                              }
+                            }}
+                            className={`flex flex-col p-4 rounded-2xl border border-white/5 bg-[#030712]/40 hover:bg-white/5 transition-all gap-2 ${hasClientDetails ? 'cursor-pointer' : ''}`}
+                          >
+                            <div className="flex items-center justify-between gap-4 w-full">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 font-extrabold text-base">
+                                  {booking.client?.name ? booking.client.name.charAt(0).toUpperCase() : 'T'}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-bold text-white text-sm">{booking.client?.name || 'Tushar Bhatt'}</h4>
+                                    {booking.status === 'Pending' && (
+                                      <span className="px-2 py-0.5 rounded bg-green-500/20 border border-green-500/30 text-green-400 text-[9px] font-bold uppercase tracking-wider">New</span>
+                                    )}
+                                  </div>
+                                  <p className="text-[11px] text-gray-400 mt-1">{booking.serviceName || 'Electrician'} • {new Date(booking.date).toLocaleDateString()} • {booking.time}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col items-end gap-1.5">
+                                {booking.status === 'Pending' ? (
+                                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                    <button onClick={() => handleAcceptBooking(booking._id)} className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[10px] font-bold transition-all">
+                                      Accept
+                                    </button>
+                                    <button onClick={() => handleDeclineBooking(booking._id)} className="px-2 py-1 bg-red-600/10 hover:bg-red-600 hover:text-white text-red-500 rounded-lg text-[10px] font-bold transition-all">
+                                      Decline
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="px-2.5 py-0.5 rounded bg-blue-500/15 text-blue-400 text-[10px] font-bold border border-blue-500/20">
+                                    {booking.status === 'Payment Released' ? 'Payment Released' : booking.status}
+                                  </span>
                                 )}
+                                <span className="text-sm font-bold text-green-400">₹{booking.price || '1,250'}</span>
                               </div>
-                              <p className="text-[11px] text-gray-400 mt-1">{booking.serviceName || 'Electrician'} • {new Date(booking.date).toLocaleDateString()} • {booking.time}</p>
                             </div>
-                          </div>
-                          
-                          <div className="flex flex-col items-end gap-1.5">
-                            {booking.status === 'Pending' ? (
-                              <div className="flex items-center gap-1">
-                                <button onClick={() => handleAcceptBooking(booking._id)} className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[10px] font-bold transition-all">
-                                  Accept
-                                </button>
-                                <button onClick={() => handleDeclineBooking(booking._id)} className="px-2 py-1 bg-red-600/10 hover:bg-red-600 hover:text-white text-red-500 rounded-lg text-[10px] font-bold transition-all">
-                                  Decline
-                                </button>
+
+                            {/* Collapsible Panel */}
+                            {isExpanded && hasClientDetails && (
+                              <div className="mt-4 pt-4 border-t border-white/5 space-y-4 text-left w-full" onClick={(e) => e.stopPropagation()}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                  <div>
+                                    <span className="text-[10px] text-gray-500 uppercase font-extrabold block">Client Name</span>
+                                    <span className="text-white text-sm font-bold">{booking.client?.name || 'Client'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-[10px] text-gray-500 uppercase font-extrabold block">Phone Number</span>
+                                    <span className="text-white text-sm font-bold">{booking.client?.phone || 'Not available'}</span>
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <span className="text-[10px] text-gray-500 uppercase font-extrabold block">Service Location</span>
+                                  <span className="text-white text-xs">{booking.location || 'Local Area'}</span>
+                                </div>
+
+                                {/* Map Iframe */}
+                                <div className="w-full h-40 rounded-xl overflow-hidden border border-white/5 bg-[#030712]">
+                                  <iframe
+                                    title="Live Map"
+                                    width="100%"
+                                    height="100%"
+                                    frameBorder="0"
+                                    src={
+                                      booking.lat && booking.lng 
+                                        ? `https://maps.google.com/maps?q=${booking.lat},${booking.lng}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+                                        : `https://maps.google.com/maps?q=${encodeURIComponent(booking.location || '')}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+                                    }
+                                    allowFullScreen
+                                  ></iframe>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-wrap items-center gap-2 pt-2">
+                                  {booking.client?.phone && (
+                                    <a 
+                                      href={`tel:${booking.client.phone}`}
+                                      className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all"
+                                    >
+                                      <Phone size={14} /> Call Client
+                                    </a>
+                                  )}
+
+                                  {booking.client && (
+                                    <button 
+                                      onClick={() => handleStartChat(booking)}
+                                      className="flex items-center gap-1.5 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-bold border border-white/5 transition-all"
+                                    >
+                                      <MessageSquare size={14} /> Chat
+                                    </button>
+                                  )}
+
+                                  <a 
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(booking.location || '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-bold border border-white/5 transition-all"
+                                  >
+                                    <Navigation size={14} /> Open in Maps
+                                  </a>
+                                  
+                                  {booking.status === 'Accepted' && (
+                                    <button 
+                                      onClick={() => handleUpdateStatus(booking._id, 'In Progress')}
+                                      className="ml-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all"
+                                    >
+                                      Start Job
+                                    </button>
+                                  )}
+
+                                  {booking.status === 'In Progress' && (
+                                    <button 
+                                      onClick={() => setSelectedBookingForCompletion(booking._id)}
+                                      className="ml-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all"
+                                    >
+                                      Complete Work
+                                    </button>
+                                  )}
+
+                                  {booking.status === 'Work Completed' && (
+                                    <button 
+                                      onClick={() => setSelectedBookingForCompletion(booking._id)}
+                                      className="ml-auto px-4 py-2 bg-blue-500 hover:bg-blue-650 text-white rounded-xl text-xs font-bold transition-all animate-pulse"
+                                    >
+                                      Verify Code
+                                    </button>
+                                  )}
+                                  
+                                  {['Code Verified', 'Payment Released', 'Closed'].includes(booking.status) && (
+                                    <div className="ml-auto flex items-center gap-1 text-emerald-400 text-xs font-bold">
+                                      <BadgeCheck size={16} /> Wallet Credited
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            ) : (
-                              <span className="px-2.5 py-0.5 rounded bg-blue-500/15 text-blue-400 text-[10px] font-bold border border-blue-500/20">
-                                {booking.status === 'Payment Released' ? 'Payment Released' : booking.status}
-                              </span>
                             )}
-                            <span className="text-sm font-bold text-green-400">₹{booking.price || '1,250'}</span>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>

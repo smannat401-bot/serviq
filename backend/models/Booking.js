@@ -15,7 +15,7 @@ const bookingSchema = new mongoose.Schema({
   totalPrice: { type: String },
   status: { 
     type: String, 
-    enum: ['Pending', 'Accepted', 'On The Way', 'Working', 'Waiting For Payment', 'Completed', 'Waiting For Code', 'Payment Released', 'Declined', 'Cancelled', 'Disputed'], 
+    enum: ['Pending', 'Accepted', 'In Progress', 'Work Completed', 'Code Verified', 'Payment Released', 'Closed', 'Declined', 'Cancelled', 'Disputed', 'On The Way', 'Working', 'Waiting For Payment', 'Completed', 'Waiting For Code'], 
     default: 'Pending' 
   },
   cancelledBy: { type: String, enum: ['client', 'worker', 'admin'] },
