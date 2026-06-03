@@ -5,12 +5,14 @@ interface HonorScoreMeterProps {
   score: number;
   size?: number;
   strokeWidth?: number;
+  hideLevel?: boolean;
 }
 
 const HonorScoreMeter: React.FC<HonorScoreMeterProps> = ({
   score,
   size = 120,
-  strokeWidth = 10
+  strokeWidth = 10,
+  hideLevel = false
 }) => {
   const [displayScore, setDisplayScore] = useState(0);
   const radius = (size - strokeWidth) / 2;
@@ -80,16 +82,18 @@ const HonorScoreMeter: React.FC<HonorScoreMeterProps> = ({
         </span>
       </div>
 
-      <div
-        className="absolute -bottom-6 px-3 py-0.5 rounded-full text-[10px] font-bold border"
-        style={{
-          backgroundColor: `${color}20`,
-          borderColor: `${color}40`,
-          color: color
-        }}
-      >
-        {getLevel(score)}
-      </div>
+      {!hideLevel && (
+        <div
+          className="absolute -bottom-6 px-3 py-0.5 rounded-full text-[10px] font-bold border"
+          style={{
+            backgroundColor: `${color}20`,
+            borderColor: `${color}40`,
+            color: color
+          }}
+        >
+          {getLevel(score)}
+        </div>
+      )}
     </div>
   );
 };

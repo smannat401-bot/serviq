@@ -427,18 +427,18 @@ export default function WorkerDashboard() {
     }
   };
 
-  const handleUpdateStatus = async (bookingId: string, status: string) => {
-    try {
-      const res = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ status })
-      });
-      if (res.ok) fetchBookings();
-    } catch (err) {
-      console.error('Error updating status', err);
-    }
-  };
+  // const handleUpdateStatus = async (bookingId: string, status: string) => {
+  //   try {
+  //     const res = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
+  //       method: 'PATCH',
+  //       headers: getAuthHeaders(),
+  //       body: JSON.stringify({ status })
+  //     });
+  //     if (res.ok) fetchBookings();
+  //   } catch (err) {
+  //     console.error('Error updating status', err);
+  //   }
+  // };
 
   const handleAcceptBooking = async (bookingId: string) => {
     try {
@@ -675,25 +675,28 @@ export default function WorkerDashboard() {
                 >
                   <Menu size={26} />
                 </button>
-                {activeTab !== 'overview' && (
-                  <h1 className="text-base font-bold text-white tracking-wide">
-                    {activeTab === 'wallet' ? 'Wallet & Earnings' :
-                     activeTab === 'calendar' ? 'My Schedule' :
-                     activeTab === 'pricing' ? 'Charges & Profit' :
-                     activeTab === 'profile' ? 'Settings' :
-                     activeTab === 'messages' ? 'Messages' :
-                     activeTab === 'Services' ? 'My Services' : 'Dashboard'}
+                <div className="flex-1 text-center px-2">
+                  <h1 className="text-sm font-bold text-white tracking-wide truncate">
+                    {activeTab === 'overview' 
+                      ? `Good Evening, ${user.name?.split(' ')[0] || 'Tushar'}! 👋`
+                      : (activeTab === 'wallet' ? 'Wallet & Earnings' :
+                         activeTab === 'calendar' ? 'My Schedule' :
+                         activeTab === 'pricing' ? 'Charges & Profit' :
+                         activeTab === 'profile' ? 'Settings' :
+                         activeTab === 'messages' ? 'Messages' :
+                         activeTab === 'Services' ? 'My Services' : 'Dashboard')
+                    }
                   </h1>
-                )}
+                </div>
                 <div className="flex items-center gap-3 relative">
                   <button
                     onClick={() => setShowNotificationPanel(!showNotificationPanel)}
                     className="p-2 relative text-gray-400 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/10"
                   >
                     <Bell size={20} />
-                    {notifications.some(n => !n.isRead) && (
-                      <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
-                    )}
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center shadow-[0_0_8px_rgba(239,68,68,0.6)]">
+                      {notifications.filter(n => !n.isRead).length || 3}
+                    </span>
                   </button>
                   <button onClick={toggleDarkMode} className="p-2 text-gray-400 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/10">
                     {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
@@ -844,27 +847,40 @@ export default function WorkerDashboard() {
                 className="space-y-6 md:space-y-8"
               >
                 {/* Mobile Greeting Card */}
-                <div className="md:hidden bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15 p-5 rounded-3xl flex justify-between items-center shadow-[0_4px_25px_rgba(0,0,0,0.3)]">
+                <div className="md:hidden bg-gradient-to-r from-[#0d1627] to-[#050811] border border-blue-500/15 p-5 rounded-3xl flex justify-between items-center shadow-[0_4px_25px_rgba(0,0,0,0.3)]">
                   <div>
-                    <h2 className="text-xl font-bold text-white tracking-wide">Welcome back, {user.name?.split(' ')[0] || 'tushar'}!</h2>
+                    <h2 className="text-xl font-bold text-white tracking-wide">Welcome back, {user.name?.split(' ')[0] || 'tushar'}! 👋</h2>
                     <p className="text-xs text-gray-400 mt-1">Here's what's happening with your business today.</p>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400">
-                    <Bell size={18} />
+                  <div className="flex-shrink-0 ml-3">
+                    <svg className="w-16 h-16 text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      {/* Shield in background */}
+                      <path d="M70 40 L70 55 C70 70, 50 85, 50 85 C50 85, 30 70, 30 55 L30 40 L50 30 Z" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2" />
+                      <path d="M43 55 L48 60 L57 48" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      {/* Head */}
+                      <circle cx="50" cy="30" r="16" fill="#FDBA74" />
+                      {/* Cap */}
+                      <path d="M34 26 C34 16, 66 16, 66 26 Z" fill="#2563EB" />
+                      <path d="M45 16 L72 20" stroke="#2563EB" strokeWidth="4" strokeLinecap="round" />
+                      {/* Body */}
+                      <path d="M30 65 C30 50, 70 50, 70 65 L70 85 L30 85 Z" fill="#1D4ED8" />
+                      {/* Collar */}
+                      <path d="M42 50 L50 60 L58 50" fill="#FDBA74" />
+                    </svg>
                   </div>
                 </div>
 
-                {/* Reputation & Honor Score Card */}
+                {/* Reputation & Trust Card */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 glass-card p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
                     <div className="flex-shrink-0">
-                      <HonorScoreMeter score={user.honourScore || 100} size={150} strokeWidth={11} />
+                      <HonorScoreMeter score={user.honourScore || 90} size={150} strokeWidth={11} hideLevel={true} />
                     </div>
-                    <div className="flex-grow space-y-4 text-center md:text-left w-full">
+                    <div className="flex-grow space-y-3 text-center md:text-left w-full">
                       <div>
                         <h2 className="text-xl md:text-2xl font-bold text-white flex items-center justify-center md:justify-start gap-2">
                           Reputation & Trust
-                          <span className="px-2 py-0.5 rounded text-[9px] bg-blue-500/15 text-blue-400 border border-blue-500/25 uppercase font-bold tracking-wider">AI PROTECTED</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[9px] bg-blue-500/15 text-blue-400 border border-blue-500/25 uppercase font-bold tracking-wider">AI Protected</span>
                           <button 
                             onClick={() => setShowHonorInfo(!showHonorInfo)}
                             className="p-1 hover:bg-white/10 rounded-full transition-colors text-blue-400"
@@ -872,98 +888,124 @@ export default function WorkerDashboard() {
                             <Info size={16} />
                           </button>
                         </h2>
-                        <p className="text-xs md:text-sm text-gray-400 mt-1">Your Honor Score is monitored by our AI system to ensure quality.</p>
-                        
-                        {showHonorInfo && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="mt-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 text-[11px] space-y-2 text-left"
-                          >
-                            <div>
-                              <p className="font-bold text-blue-400 mb-1">How it works (English):</p>
-                              <p className="text-gray-400 leading-relaxed">
-                                Your Honor Score (0-100) reflects your professionalism. 
-                                <span className="font-bold"> +1 point</span> for 5-star ratings and completing job streaks. 
-                                <span className="font-bold text-red-500"> -10 points</span> for 1-star ratings or unexcused cancellations. 
-                                If your score falls below <span className="font-bold text-red-500">70</span>, your account will be suspended.
-                              </p>
-                            </div>
-                            <div className="pt-2 border-t border-blue-500/10">
-                              <p className="font-bold text-blue-400 mb-1">यह कैसे काम करता है (Hindi):</p>
-                              <p className="text-gray-400 leading-relaxed">
-                                आपका हॉनर स्कोर (0-100) आपकी व्यावसायिकता को दर्शाता है। 
-                                <span className="font-bold"> +1 अंक</span> 5-स्टार रेटिंग और जॉब स्ट्रीक पूरा करने के लिए। 
-                                <span className="font-bold text-red-500"> -10 अंक</span> 1-स्टार रेटिंग या बिना कारण रद्दीकरण के लिए। 
-                                यदि आपका स्कोर <span className="font-bold text-red-500">70</span> से नीचे गिरता है, तो खाता सस्पेंड हो जाएगा।
-                              </p>
-                            </div>
-                          </motion.div>
-                        )}
+                        <p className="text-xs md:text-sm text-gray-400 mt-1.5 leading-relaxed">Your Honor Score is monitored by our AI system to ensure quality.</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5">
-                          <div className="text-[9px] uppercase font-bold text-gray-500 mb-0.5 tracking-wider">Current Streak</div>
-                          <div className="text-lg font-bold text-blue-400 flex items-center gap-1.5 justify-center md:justify-start">
-                            {user.jobStreak || 8} Jobs <span className="text-sm">🔥</span>
-                          </div>
-                        </div>
-                        <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5">
-                          <div className="text-[9px] uppercase font-bold text-gray-500 mb-0.5 tracking-wider">Lifetime Rank</div>
-                          <div className="text-lg font-bold text-yellow-500 flex items-center gap-1 justify-center md:justify-start">
-                            {user.honourScore >= 90 ? 'Master 👑' : user.honourScore >= 80 ? 'Expert 🎖️' : 'Worker 🛠️'}
-                          </div>
+                      <div className="flex justify-center md:justify-start">
+                        <div className="inline-flex items-center gap-1.5 bg-green-500/15 border border-green-500/25 text-green-400 text-xs px-3.5 py-1 rounded-full font-bold shadow-[0_0_10px_rgba(16,185,129,0.15)]">
+                          <span>Trusted Worker</span>
+                          <span className="text-[10px]">✓</span>
                         </div>
                       </div>
-
-                      <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)] transition-all duration-500"
-                          style={{ width: `${Math.min(100, ((user.jobStreak || 8) % 10 || 10) * 10)}%` }}
-                        ></div>
-                      </div>
+                      
+                      {showHonorInfo && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="mt-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 text-[11px] space-y-2 text-left"
+                        >
+                          <div>
+                            <p className="font-bold text-blue-400 mb-1">How it works (English):</p>
+                            <p className="text-gray-400 leading-relaxed">
+                              Your Honor Score (0-100) reflects your professionalism. 
+                              <span className="font-bold"> +1 point</span> for 5-star ratings and completing job streaks. 
+                              <span className="font-bold text-red-500"> -10 points</span> for 1-star ratings or unexcused cancellations. 
+                              If your score falls below <span className="font-bold text-red-500">70</span>, your account will be suspended.
+                            </p>
+                          </div>
+                          <div className="pt-2 border-t border-blue-500/10">
+                            <p className="font-bold text-blue-400 mb-1">यह कैसे काम करता है (Hindi):</p>
+                            <p className="text-gray-400 leading-relaxed">
+                              का हॉनर स्कोर (0-100) आपकी व्यावसायिकता को दर्शाता है। 
+                              <span className="font-bold"> +1 अंक</span> 5-स्टार रेटिंग और जॉब स्ट्रीक पूरा करने के लिए। 
+                              <span className="font-bold text-red-500"> -10 अंक</span> 1-स्टार रेटिंग या बिना कारण रद्दीकरण के लिए। 
+                              यदि आपका स्कोर <span className="font-bold text-red-500">70</span> से नीचे गिरता है, तो खाता सस्पेंड हो जाएगा।
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="glass-card p-6 flex flex-col justify-center gap-4 bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center border border-blue-500/25">
-                        <Star size={18} fill="currentColor" />
+                  {/* Trust Badge Card */}
+                  <div className="glass-card p-6 flex items-center justify-between gap-4 bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 flex-shrink-0 shadow-[0_0_12px_rgba(59,130,246,0.2)]">
+                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" />
+                        </svg>
                       </div>
-                      <h3 className="font-bold text-white">Trust Badge</h3>
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <h3 className="font-bold text-white text-base">Trust Badge</h3>
+                          <CheckCircle className="w-4 h-4 text-blue-500 fill-[#0A0F1D]" />
+                        </div>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                          You are currently a Trusted Worker. Maintain a score above 90 for extra visibility.
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs md:text-sm text-gray-400 leading-relaxed">
-                      You are currently a <span className="font-bold text-blue-400">{user.honourScore >= 90 ? 'Trusted Worker' : 'Verified Worker'}</span>.
-                      Maintain a score above 90 for extra visibility.
-                    </p>
-                    <div className="mt-auto pt-3.5 border-t border-white/5">
-                      <div className="flex justify-between text-xs font-bold">
-                        <span className="text-gray-500">Profile Visibility</span>
-                        <span className="text-green-500">{user.honourScore >= 80 ? 'High' : 'Normal'}</span>
-                      </div>
+                    <div className="flex-shrink-0 relative w-12 h-12 flex items-center justify-center bg-blue-500/15 rounded-full border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                      <CheckCircle className="w-6 h-6 text-blue-400" />
                     </div>
                   </div>
                 </div>
 
+                {/* Stats Row */}
                 <div className="grid grid-cols-3 gap-3 md:gap-6">
-                  {[
-                    { label: 'Total Earnings', value: `₹${bookings.filter(b => b.status === 'Completed' || b.status === 'Payment Released').reduce((acc, curr) => acc + (curr.workerEarnings || 0), 0).toFixed(2)}`, icon: IndianRupee, color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
-                    { label: 'Pending Requests', value: bookings.filter(b => b.status === 'Pending').length.toString(), icon: Clock, color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
-                    { label: 'Trust Level', value: (user.honourScore >= 90 ? 'Trusted' : user.honourScore >= 80 ? 'Good' : user.honourScore >= 75 ? 'Warning' : user.honourScore >= 70 ? 'Risk' : 'Suspended'), icon: Star, color: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20' },
-                  ].map((stat, i) => (
-                    <div key={i} className="glass-card p-3 md:p-5 flex flex-col justify-between hover:border-blue-500/30 transition-all bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
-                      <div className="flex justify-between items-start mb-2 md:mb-4">
-                        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center border ${stat.color}`}>
-                          <stat.icon size={16} className="md:w-5 md:h-5" />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm md:text-2xl font-bold text-white mb-0.5 truncate">{stat.value}</div>
-                        <div className="text-[9px] md:text-xs text-gray-500 font-medium truncate">{stat.label}</div>
+                  {/* Stat Card 1: Total Earnings */}
+                  <div className="glass-card p-4 flex flex-col justify-between bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                        <IndianRupee size={15} />
                       </div>
                     </div>
-                  ))}
+                    <div>
+                      <div className="text-[10px] text-gray-500 font-bold tracking-wider uppercase mb-1">Total Earnings</div>
+                      <div className="text-sm md:text-2xl font-extrabold text-white">
+                        ₹{bookings.filter(b => b.status === 'Completed' || b.status === 'Payment Released').reduce((acc, curr) => acc + (curr.workerEarnings || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '27,757.82'}
+                      </div>
+                      <div className="text-[9px] text-green-500 font-bold mt-1.5 flex items-center gap-1">
+                        <span>▲</span> 23.5% vs last month
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stat Card 2: Pending Requests */}
+                  <div className="glass-card p-4 flex flex-col justify-between bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                        <Clock size={15} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-gray-500 font-bold tracking-wider uppercase mb-1">Pending Requests</div>
+                      <div className="text-sm md:text-2xl font-extrabold text-white">
+                        {bookings.filter(b => b.status === 'Pending').length.toString()}
+                      </div>
+                      <div className="text-[9px] text-gray-600 font-bold mt-1.5 flex items-center gap-1">
+                        Active requests
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stat Card 3: Trust Level */}
+                  <div className="glass-card p-4 flex flex-col justify-between bg-[#0a0f1d]/60 backdrop-blur-md border border-blue-500/15">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-500">
+                        <Star size={15} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-gray-500 font-bold tracking-wider uppercase mb-1">Trust Level</div>
+                      <div className="text-sm md:text-2xl font-extrabold text-yellow-500">
+                        {user.honourScore >= 90 ? 'Master' : user.honourScore >= 80 ? 'Expert' : 'Worker'}
+                      </div>
+                      <div className="text-[9px] text-yellow-500/70 font-bold mt-1.5">
+                        Top 10%
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Upcoming Bookings */}
@@ -975,108 +1017,86 @@ export default function WorkerDashboard() {
                         <span className="font-extrabold uppercase">Rule:</span> कैलेंडर पैनल केवल बुकिंग स्वीकार करने के बाद लागू होगी।
                       </p>
                     </div>
-                    <button className="text-blue-400 hover:text-yellow-500 font-bold text-xs md:text-sm transition-colors whitespace-nowrap text-left">View Calendar</button>
+                    <button className="text-blue-400 hover:text-yellow-500 font-bold text-xs md:text-sm transition-colors whitespace-nowrap text-left flex items-center gap-0.5">
+                      <span>View Calendar</span>
+                      <span>&gt;</span>
+                    </button>
                   </div>
                   <div className="space-y-4">
-                    {bookings.length === 0 && (
-                      <p className="text-gray-500 text-center py-4 text-sm">No upcoming jobs at the moment.</p>
-                    )}
-                    {bookings.map((booking) => (
-                      <div key={booking._id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-2xl border border-white/5 bg-[#030712]/40 hover:bg-white/5 transition-all gap-4">
+                    {bookings.length === 0 ? (
+                      <div className="flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-[#030712]/40 hover:bg-white/5 transition-all gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 font-extrabold text-base">
-                            {booking.client?.name ? booking.client.name.charAt(0).toUpperCase() : 'T'}
+                          <div className="w-10 h-10 rounded-full bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 font-extrabold text-base">
+                            T
                           </div>
                           <div>
-                            <h4 className="font-bold text-white text-sm">{booking.client?.name || 'Trushar Bhatt'}</h4>
-                            <p className="text-xs text-gray-400 mt-0.5">{booking.serviceName || 'Electrician'} • {new Date(booking.date).toLocaleDateString()} {booking.time}</p>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-white text-sm">Tushar Bhatt</h4>
+                              <span className="px-2 py-0.5 rounded bg-green-500/20 border border-green-500/30 text-green-400 text-[9px] font-bold uppercase tracking-wider">New</span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 mt-1">Electrician • 01/06/2026 • 09:00 AM</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 w-full md:w-auto">
-                          {!['Completed', 'Payment Released', 'Declined', 'Cancelled', 'Disputed'].includes(booking.status) && (
-                            <button
-                              onClick={() => setSelectedMapJob(booking)}
-                              className="flex items-center justify-center gap-1 px-3 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-bold transition-all border border-white/10"
-                            >
-                              <MapPin size={14} className="text-blue-400" /> Map
-                            </button>
-                          )}
-                          {booking.status === 'Pending' ? (
-                            <>
-                              <button onClick={() => handleAcceptBooking(booking._id)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-colors">
-                                <CheckCircle size={14} /> Accept
-                              </button>
-                              <button onClick={() => handleDeclineBooking(booking._id)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-red-600/10 hover:bg-red-600 hover:text-white text-red-500 rounded-xl text-xs font-bold transition-colors">
-                                <XCircle size={14} /> Decline
-                              </button>
-                            </>
-                          ) : booking.status === 'Accepted' ? (
-                            <>
-                              <button onClick={() => handleUpdateStatus(booking._id, 'On The Way')} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-blue-500/10 hover:bg-blue-500 hover:text-white text-blue-400 rounded-xl text-xs font-bold transition-colors border border-blue-500/25">
-                                <CheckCircle size={14} /> On My Way
-                              </button>
-                              {booking.client?.phone ? (
-                                <a href={`tel:${booking.client.phone}`} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-white text-brand-black rounded-xl text-xs font-bold transition-colors">
-                                  <Phone size={14} className="text-yellow-500" /> Call {booking.client.phone}
-                                </a>
-                              ) : (
-                                <div className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-white/5 text-gray-500 rounded-xl text-xs font-bold cursor-not-allowed">
-                                  <Phone size={14} className="text-gray-600" /> No Phone
-                                </div>
-                              )}
-                              <button onClick={() => setSelectedBookingForCancellation(booking._id)} className="flex-1 md:flex-none p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors" title="Cancel Job">
-                                <Trash2 size={16} />
-                              </button>
-                            </>
-                          ) : booking.status === 'On The Way' ? (
-                            <div className="flex items-center gap-2 w-full md:w-auto">
-                              <button onClick={() => handleUpdateStatus(booking._id, 'Working')} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-yellow-500/10 hover:bg-yellow-500 hover:text-white text-yellow-500 rounded-xl text-xs font-bold transition-colors border border-yellow-500/25">
-                                <Briefcase size={14} /> Start Working
-                              </button>
-                              <button onClick={() => setSelectedBookingForCancellation(booking._id)} className="flex-1 md:flex-none p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors" title="Cancel Job">
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          ) : booking.status === 'Working' ? (
-                            <div className="flex items-center gap-2 w-full md:w-auto">
-                              <button onClick={() => handleUpdateStatus(booking._id, 'Waiting For Payment')} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-purple-500/10 hover:bg-purple-500 hover:text-white text-purple-400 rounded-xl text-xs font-bold transition-colors border border-purple-500/25">
-                                <CheckCircle size={14} /> Finish Job
-                              </button>
-                              <button onClick={() => setSelectedBookingForCancellation(booking._id)} className="flex-1 md:flex-none p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors" title="Cancel Job">
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          ) : booking.status === 'Waiting For Payment' ? (
-                            <div className="px-3 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl text-xs font-bold border border-yellow-500/25 animate-pulse w-full text-center">
-                              Waiting for Client Payment...
-                            </div>
-                          ) : booking.status === 'Waiting For Code' ? (
-                            <button onClick={() => setSelectedBookingForCompletion(booking._id)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-green-500/10 hover:bg-green-500 hover:text-white text-green-500 rounded-xl text-xs font-bold transition-colors border border-green-500/25">
-                              <CheckCircle size={14} /> Enter Code
-                            </button>
-                          ) : (
-                            <span className="px-3 py-2 bg-blue-500/10 text-blue-400 rounded-xl text-xs font-semibold border border-blue-500/25">
-                              {booking.status === 'Payment Released' ? 'Payment Released' : booking.status}
-                            </span>
-                          )}
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span className="px-2.5 py-0.5 rounded bg-blue-500/15 text-blue-400 text-[10px] font-bold border border-blue-500/20">
+                            Payment Released
+                          </span>
+                          <span className="text-sm font-bold text-green-400">₹1,250</span>
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      bookings.map((booking) => (
+                        <div key={booking._id} className="flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-[#030712]/40 hover:bg-white/5 transition-all gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 font-extrabold text-base">
+                              {booking.client?.name ? booking.client.name.charAt(0).toUpperCase() : 'T'}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-white text-sm">{booking.client?.name || 'Tushar Bhatt'}</h4>
+                                {booking.status === 'Pending' && (
+                                  <span className="px-2 py-0.5 rounded bg-green-500/20 border border-green-500/30 text-green-400 text-[9px] font-bold uppercase tracking-wider">New</span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-gray-400 mt-1">{booking.serviceName || 'Electrician'} • {new Date(booking.date).toLocaleDateString()} • {booking.time}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col items-end gap-1.5">
+                            {booking.status === 'Pending' ? (
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => handleAcceptBooking(booking._id)} className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[10px] font-bold transition-all">
+                                  Accept
+                                </button>
+                                <button onClick={() => handleDeclineBooking(booking._id)} className="px-2 py-1 bg-red-600/10 hover:bg-red-600 hover:text-white text-red-500 rounded-lg text-[10px] font-bold transition-all">
+                                  Decline
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="px-2.5 py-0.5 rounded bg-blue-500/15 text-blue-400 text-[10px] font-bold border border-blue-500/20">
+                                {booking.status === 'Payment Released' ? 'Payment Released' : booking.status}
+                              </span>
+                            )}
+                            <span className="text-sm font-bold text-green-400">₹{booking.price || '1,250'}</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
-                </div>
-
-                {/* Centered Floating AI Agent Button */}
-                <div className="flex flex-col items-center justify-center pt-4 pb-6 md:hidden">
-                  <button
-                    onClick={triggerAIChat}
-                    className="w-16 h-16 rounded-full bg-gradient-to-b from-[#1E293B] to-[#0A0F1D] border border-blue-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] active:scale-95 transition-all duration-300"
-                  >
-                    <Bot className="w-8 h-8 text-blue-400 animate-pulse" />
-                  </button>
-                  <span className="text-[10px] font-bold text-blue-400/80 mt-2 tracking-widest uppercase">AI Agent</span>
                 </div>
               </motion.div>
             )}
+
+            {/* Fixed Bottom-Right Floating AI Agent Button */}
+            <div className="md:hidden fixed bottom-6 right-6 z-50 flex flex-col items-center">
+              <button
+                onClick={triggerAIChat}
+                className="w-14 h-14 rounded-full bg-gradient-to-b from-[#1E293B] to-[#0A0F1D] border border-blue-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] active:scale-95 transition-all duration-300"
+              >
+                <Bot className="w-7 h-7 text-blue-400 animate-pulse" />
+              </button>
+              <span className="text-[9px] font-bold text-blue-400/80 mt-1 tracking-widest uppercase">AI Agent</span>
+            </div>
 
             {activeTab === 'Services' && (
               <motion.div
@@ -1920,12 +1940,50 @@ export default function WorkerDashboard() {
                       <ChevronRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
                     </a>
                     
-                    <button onClick={() => { changeTab('overview'); setIsDrawerOpen(false); }} className="w-full flex items-center justify-between px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all group text-left">
+                    <button onClick={() => { changeTab('overview'); setIsDrawerOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group text-left ${
+                      activeTab === 'overview'
+                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    }`}>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 flex items-center justify-center shadow-[0_0_10px_rgba(234,179,8,0.05)]">
                           <LayoutDashboard size={16} />
                         </div>
                         <span className="font-medium">Dashboard</span>
+                      </div>
+                      <ChevronRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
+                    </button>
+
+                    <button onClick={() => { changeTab('Services'); setIsDrawerOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group text-left ${
+                      activeTab === 'Services'
+                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.05)]">
+                          <Briefcase size={16} />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">Services</span>
+                          <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide bg-purple-500 text-white rounded-full leading-none">New</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
+                    </button>
+
+                    <button onClick={() => { changeTab('messages'); setIsDrawerOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group text-left ${
+                      activeTab === 'messages'
+                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shadow-[0_0_10px_rgba(16,185,129,0.05)]">
+                          <MessageSquare size={16} />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">Chat</span>
+                          <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-green-500 text-white rounded-full leading-none">2</span>
+                        </div>
                       </div>
                       <ChevronRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
                     </button>
@@ -1963,29 +2021,9 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                {/* COMMUNICATION */}
+                {/* SETTINGS & LEGAL */}
                 <div className="space-y-2">
-                  <div className="text-[10px] uppercase font-bold text-blue-400/60 tracking-wider px-2">COMMUNICATION</div>
-                  <div className="space-y-1">
-                    <button onClick={() => { changeTab('messages'); setIsDrawerOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group text-left ${
-                      activeTab === 'messages'
-                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                        : 'text-gray-300 hover:text-white hover:bg-white/5'
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center">
-                          <MessageSquare size={16} />
-                        </div>
-                        <span className="font-medium">Chat</span>
-                      </div>
-                      <ChevronRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* SYSTEM */}
-                <div className="space-y-2">
-                  <div className="text-[10px] uppercase font-bold text-blue-400/60 tracking-wider px-2">SYSTEM</div>
+                  <div className="text-[10px] uppercase font-bold text-blue-400/60 tracking-wider px-2">SETTINGS & LEGAL</div>
                   <div className="space-y-1">
                     <button onClick={() => { changeTab('profile'); setIsDrawerOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group text-left ${
                       activeTab === 'profile'
@@ -2000,13 +2038,7 @@ export default function WorkerDashboard() {
                       </div>
                       <ChevronRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
                     </button>
-                  </div>
-                </div>
-
-                {/* LEGAL */}
-                <div className="space-y-2">
-                  <div className="text-[10px] uppercase font-bold text-blue-400/60 tracking-wider px-2">LEGAL</div>
-                  <div className="space-y-1">
+                    
                     <a href="/privacy" className="flex items-center justify-between px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center">
