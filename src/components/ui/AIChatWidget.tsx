@@ -40,7 +40,28 @@ export default function AIChatWidget() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isWorker, setIsWorker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const userStr = localStorage.getItem('serviq_user');
+      if (userStr) {
+        const u = JSON.parse(userStr);
+        if (u.role === 'worker') {
+          setIsWorker(true);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleOpenChat = () => setIsOpen(true);
+    window.addEventListener('open-ai-chat', handleOpenChat);
+    return () => window.removeEventListener('open-ai-chat', handleOpenChat);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -155,7 +176,7 @@ export default function AIChatWidget() {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 ${isOpen ? 'bg-brand-primary text-white' : 'bg-transparent'}`}
+        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 ${isOpen ? 'bg-brand-primary text-white' : 'bg-transparent'} ${isWorker ? 'hidden md:flex' : ''}`}
       >
         {isOpen ? <X size={28} /> : <AIOrb3D size={56} />}
       </button>
