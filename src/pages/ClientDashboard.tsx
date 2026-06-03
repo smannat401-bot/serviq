@@ -269,6 +269,14 @@ export default function ClientDashboard() {
     }
   };
 
+  // Enforce profile completion for clients (e.g., Google Sign-Up users)
+  useEffect(() => {
+    if (user._id && user.role === 'client' && (!user.phone || !user.serviceArea)) {
+      setActiveTab('settings');
+      setShowMobileProfileEdit(true);
+    }
+  }, [user]);
+
   const fetchBookings = () => {
     if (user._id) {
       fetch(`${API_URL}/api/bookings/client/${user._id}`, { headers: getAuthHeaders() })
@@ -671,7 +679,13 @@ export default function ClientDashboard() {
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    if ((!user.phone || !user.serviceArea) && item.id !== 'settings') {
+                      alert('Please complete your profile details (Phone Number and Service Area) first!');
+                      return;
+                    }
+                    setActiveTab(item.id);
+                  }}
                   className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
                     activeTab === item.id 
                       ? 'bg-brand-electricBlue/10 text-brand-electricBlue border-r-4 border-brand-electricBlue' 
@@ -1247,12 +1261,26 @@ export default function ClientDashboard() {
                 {/* Mobile Menu List */}
                 <div className="md:hidden bg-[#0b0f19] border border-white/5 rounded-3xl overflow-hidden shadow-md divide-y divide-white/5">
                   {[
-                    { label: 'My Bookings', onClick: () => setActiveTab('bookings') },
-                    { label: 'Saved Providers', onClick: () => setActiveTab('favorites') },
+                    { label: 'My Bookings', onClick: () => {
+                      if (!user.phone || !user.serviceArea) {
+                        alert('Please complete your profile details (Phone Number and Service Area) first!');
+                        return;
+                      }
+                      setActiveTab('bookings');
+                    }},
+                    { label: 'Saved Providers', onClick: () => {
+                      if (!user.phone || !user.serviceArea) {
+                        alert('Please complete your profile details (Phone Number and Service Area) first!');
+                        return;
+                      }
+                      setActiveTab('favorites');
+                    }},
                     { label: 'My Addresses', onClick: () => { alert('Addresses feature coming soon!'); } },
                     { label: 'Payment Methods', onClick: () => { alert('Payment methods managed through Checkout.'); } },
                     { label: 'Notifications', onClick: () => { alert('No new notifications.'); } },
                     { label: 'Help & Support', onClick: () => { alert('Support email: support@serviq.com'); } },
+                    { label: 'Terms & Conditions', onClick: () => { window.location.href = '/terms'; } },
+                    { label: 'Privacy Policy', onClick: () => { window.location.href = '/privacy'; } },
                     { label: 'Settings', onClick: () => setShowMobileProfileEdit(true) }
                   ].map((menuItem, idx) => (
                     <button
@@ -1283,6 +1311,11 @@ export default function ClientDashboard() {
                 {/* Desktop Account Settings Form (hidden on mobile) */}
                 <div className="hidden md:block glass-card p-8">
                   <h2 className="text-xl font-bold text-brand-black dark:text-white mb-6">Account Settings</h2>
+                  {(!user.phone || !user.serviceArea) && (
+                    <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-xl font-bold text-sm">
+                      ⚠️ Please complete your profile details (Phone Number and Service Area) to access other tabs.
+                    </div>
+                  )}
                   <form onSubmit={handleSaveProfile} className="space-y-6 max-w-2xl">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -1340,6 +1373,11 @@ export default function ClientDashboard() {
                       {isSavingProfile ? 'Saving...' : 'Save Changes'}
                     </button>
                   </form>
+
+                  <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800 flex gap-6 text-sm font-semibold">
+                    <a href="/terms" className="text-gray-500 hover:text-brand-electricBlue transition-colors">Terms & Conditions</a>
+                    <a href="/privacy" className="text-gray-500 hover:text-brand-electricBlue transition-colors">Privacy Policy</a>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -1381,6 +1419,10 @@ export default function ClientDashboard() {
           <button
             key={item.id}
             onClick={() => {
+              if ((!user.phone || !user.serviceArea) && item.id !== 'settings') {
+                alert('Please complete your profile details (Phone Number and Service Area) first!');
+                return;
+              }
               setActiveTab(item.id);
               // Reset all mobile view subflows
               setSearchQuery('');
@@ -1925,13 +1967,27 @@ export default function ClientDashboard() {
         <div className="fixed inset-0 z-50 bg-[#030712] text-white flex flex-col font-sans">
           <header className="flex justify-between items-center p-4 border-b border-white/5 bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-30">
             <div className="flex items-center gap-2">
-              <button onClick={() => setShowMobileProfileEdit(false)} className="p-1 text-gray-400 hover:text-white">
+              <button 
+                onClick={() => {
+                  if (!user.phone || !user.serviceArea) {
+                    alert('Please complete your profile details (Phone Number and Service Area) first!');
+                    return;
+                  }
+                  setShowMobileProfileEdit(false);
+                }} 
+                className="p-1 text-gray-400 hover:text-white"
+              >
                 <ChevronLeft size={20} />
               </button>
               <span className="text-sm font-extrabold tracking-wide">Edit Profile</span>
             </div>
           </header>
           <div className="flex-1 overflow-y-auto p-4">
+            {(!user.phone || !user.serviceArea) && (
+              <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-xl font-bold text-xs">
+                ⚠️ Please complete your profile details (Phone Number and Service Area) to access other tabs.
+              </div>
+            )}
             <form onSubmit={handleSaveProfile} className="space-y-6">
               <div className="space-y-4">
                 <div>
