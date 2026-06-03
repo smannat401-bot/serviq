@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Briefcase, IndianRupee, Star, Calendar,
   MessageSquare, Bell, CheckCircle, XCircle,
-  Plus, Tag, Trash2, User, MapPin, Clock, Edit3, LogOut, Phone, Upload, Trash, AlertTriangle, ShieldOff, Info, ArrowLeft, ChevronRight, Menu,
+  Plus, Tag, Trash2, User, MapPin, Clock, Edit3, LogOut, Phone, Upload, Trash, AlertTriangle, ShieldOff, Info, ArrowLeft, ChevronRight, Menu, ChevronDown,
   Home, Compass, LayoutDashboard, Settings, Sun, Moon,
   Wallet, Shield, FileText, X, Bot
 } from 'lucide-react';
@@ -668,38 +668,51 @@ export default function WorkerDashboard() {
           <main className="flex-1 space-y-6 md:space-y-8">
             <header className="flex flex-col md:flex-row md:justify-between md:items-center bg-transparent md:bg-white md:dark:bg-[#0f172a] p-0 md:p-6 rounded-none md:rounded-3xl border-0 md:border md:border-gray-100 md:dark:border-gray-800 shadow-none md:shadow-sm gap-4">
               {/* Mobile Header Bar */}
-              <div className="md:hidden flex justify-between items-center w-full px-2 py-4">
-                <button 
-                  onClick={() => setIsDrawerOpen(true)}
-                  className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors"
-                >
-                  <Menu size={26} />
-                </button>
-                <div className="flex-1 text-center px-2">
-                  <h1 className="text-sm font-bold text-white tracking-wide truncate">
-                    {activeTab === 'overview' 
-                      ? `Good Evening, ${user.name?.split(' ')[0] || 'Tushar'}! 👋`
-                      : (activeTab === 'wallet' ? 'Wallet & Earnings' :
-                         activeTab === 'calendar' ? 'My Schedule' :
-                         activeTab === 'pricing' ? 'Charges & Profit' :
-                         activeTab === 'profile' ? 'Settings' :
-                         activeTab === 'messages' ? 'Messages' :
-                         activeTab === 'Services' ? 'My Services' : 'Dashboard')
-                    }
-                  </h1>
+              <div className="md:hidden flex items-center justify-between w-full px-2 py-4 border-b border-white/5 bg-[#0a0a0a]">
+                {/* Mobile Left Section: Hamburger Menu, Logo, Location */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsDrawerOpen(true)}
+                    className="text-gray-600 dark:text-gray-300 p-1.5 hover:bg-white/5 rounded-full"
+                  >
+                    <Menu size={22} />
+                  </button>
+                  <Link to="/" className="flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md overflow-hidden shrink-0">
+                      <img src="/logo.jpg" alt="Serviq Logo" className="w-[85%] h-[85%] object-contain" />
+                    </div>
+                  </Link>
+                  <div className="flex items-center gap-1 text-[11px] text-gray-400 bg-white/5 border border-white/5 px-2 py-1 rounded-full">
+                    <MapPin size={10} className="text-blue-500" />
+                    <span className="font-semibold text-gray-300 truncate max-w-[80px]">{user?.serviceArea?.split(',')[0] || 'Ludhiana'}</span>
+                    <ChevronDown size={10} className="text-gray-500" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 relative">
+
+                {/* Mobile Actions (Right Section) */}
+                <div className="flex items-center gap-2 relative">
                   <button
                     onClick={() => setShowNotificationPanel(!showNotificationPanel)}
-                    className="p-2 relative text-gray-400 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/10"
+                    className="p-2 rounded-full text-gray-600 dark:text-gray-300 relative"
                   >
                     <Bell size={20} />
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center shadow-[0_0_8px_rgba(239,68,68,0.6)]">
-                      {notifications.filter(n => !n.isRead).length || 3}
-                    </span>
+                    <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-[#0a0a0a] rounded-full"></span>
                   </button>
-                  <button onClick={toggleDarkMode} className="p-2 text-gray-400 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/10">
-                    {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
+                  <button
+                    onClick={toggleDarkMode}
+                    className="p-2 rounded-full text-gray-600 dark:text-gray-300"
+                  >
+                    {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                  </button>
+                  <button 
+                    onClick={() => changeTab('profile')}
+                    className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center font-bold text-sm text-blue-400 overflow-hidden shrink-0 ml-1"
+                  >
+                    {user.profilePhoto ? (
+                      <img src={user.profilePhoto} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      <span className="text-xs uppercase">{user.name?.charAt(0) || 'P'}</span>
+                    )}
                   </button>
 
                   {showNotificationPanel && (
