@@ -9,6 +9,39 @@ import BookingModal from '../components/modals/BookingModal';
 import ReviewModal from '../components/modals/ReviewModal';
 import { API_URL, getAuthHeaders } from '../config';
 
+const LOCAL_COORDINATES_MAP: { [key: string]: { lat: number; lon: number } } = {
+  "lokhandwala, andheri west": { lat: 19.1308, lon: 72.8292 },
+  "lokhandwala": { lat: 19.1308, lon: 72.8292 },
+  "andheri west": { lat: 19.1363, lon: 72.8276 },
+  "andheri": { lat: 19.1176, lon: 72.8480 },
+  "bandra": { lat: 19.0596, lon: 72.8295 },
+  "juhu": { lat: 19.1048, lon: 72.8267 },
+  "mumbai": { lat: 19.0760, lon: 72.8777 },
+  "ludhiana": { lat: 30.9010, lon: 75.8570 },
+  "delhi": { lat: 28.6139, lon: 77.2090 },
+  "bangalore": { lat: 12.9716, lon: 77.5946 },
+};
+
+const getCoordinatesForAddress = async (address: string, token: string): Promise<{ lat: number; lon: number }> => {
+  const clean = address.trim().toLowerCase();
+  for (const [key, value] of Object.entries(LOCAL_COORDINATES_MAP)) {
+    if (clean.includes(key)) {
+      return value;
+    }
+  }
+  try {
+    const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${token}&country=IN&limit=1`);
+    const geo = await res.json();
+    if (geo && Array.isArray(geo.features) && geo.features.length > 0) {
+      const coords = geo.features[0].geometry.coordinates;
+      return { lat: coords[1], lon: coords[0] };
+    }
+  } catch (e) {
+    console.error('Error geocoding address:', address, e);
+  }
+  return { lat: 19.1308, lon: 72.8292 };
+};
+
 export default function ClientDashboard() {
   const user = JSON.parse(localStorage.getItem('serviq_user') || '{}');
 
@@ -41,7 +74,48 @@ export default function ClientDashboard() {
   const [workers, setWorkers] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [locationQuery, setLocationQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState('Lokhandwala, Andheri West');
+  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number }>({ lat: 19.1308, lon: 72.8292 });
+  const [userLocationName, setUserLocationName] = useState<string>('Lokhandwala, Andheri West');
+  const [isGpsLoading, setIsGpsLoading] = useState(false);
+  const [workerCoordsCache, setWorkerCoordsCache] = useState<{ [key: string]: { lat: number; lon: number } }>({});
+
+  const calculateDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return parseFloat((R * c).toFixed(1));
+  };
+
+  const getWorkerDistance = (worker: any): number => {
+    if (!worker) return 9.9;
+    const addr = worker.serviceArea || '';
+    const wCoords = workerCoordsCache[addr];
+    if (wCoords) {
+      return calculateDistanceKm(userCoords.lat, userCoords.lon, wCoords.lat, wCoords.lon);
+    }
+    // Fallback: search in local map
+    const cleanLower = addr.trim().toLowerCase();
+    for (const [key, value] of Object.entries(LOCAL_COORDINATES_MAP)) {
+      if (cleanLower.includes(key)) {
+        return calculateDistanceKm(userCoords.lat, userCoords.lon, value.lat, value.lon);
+      }
+    }
+    return 9.9; // Default placeholder distance if completely unresolved
+  };
+
+  const getWorkerPriority = (distance: number): number => {
+    if (distance <= 5) return 1;
+    if (distance <= 10) return 2;
+    return 3;
+  };
 
   const [selectedBookingForReview, setSelectedBookingForReview] = useState<any | null>(null);
 
@@ -160,6 +234,122 @@ export default function ClientDashboard() {
     const intervalId = setInterval(fetchBookings, 3000);
     return () => clearInterval(intervalId);
   }, []);
+
+  // Geocode all workers once fetched
+  useEffect(() => {
+    if (workers.length === 0) return;
+    const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+    if (!token) return;
+
+    const geocodeAll = async () => {
+      let updatedCache = { ...workerCoordsCache };
+      let neededGeocoding = false;
+
+      for (const worker of workers) {
+        const addr = worker.serviceArea || '';
+        if (addr && !updatedCache[addr]) {
+          neededGeocoding = true;
+          const coords = await getCoordinatesForAddress(addr, token);
+          updatedCache[addr] = coords;
+        }
+      }
+
+      if (neededGeocoding) {
+        setWorkerCoordsCache(updatedCache);
+      }
+    };
+
+    geocodeAll();
+  }, [workers]);
+
+  // Request user's GPS coordinates on mount
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      console.warn("Geolocation not supported");
+      return;
+    }
+
+    setIsGpsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        setUserCoords({ lat, lon });
+        
+        const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+        if (token) {
+          try {
+            const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lon},${lat}.json?access_token=${token}&limit=1`);
+            const data = await res.json();
+            if (data && data.features && data.features.length > 0) {
+              const placeName = data.features[0].place_name;
+              setUserLocationName(placeName);
+              setLocationQuery(placeName);
+            } else {
+              setUserLocationName(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+              setLocationQuery(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+            }
+          } catch (err) {
+            console.error('Error reverse geocoding:', err);
+            setUserLocationName(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+            setLocationQuery(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+          }
+        } else {
+          setUserLocationName(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+          setLocationQuery(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+        }
+        setIsGpsLoading(false);
+      },
+      (err) => {
+        console.error("GPS access denied or error:", err);
+        setIsGpsLoading(false);
+        // Default to Lokhandwala/Mumbai coordinates
+        setUserCoords({ lat: 19.1308, lon: 72.8292 });
+        setUserLocationName("Lokhandwala, Andheri West");
+        setLocationQuery("Lokhandwala, Andheri West");
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
+  }, []);
+
+  // Debounced geocoding of manual search input
+  useEffect(() => {
+    if (!locationQuery || locationQuery === userLocationName) return;
+
+    const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+    if (!token) return;
+
+    const delayDebounce = setTimeout(async () => {
+      try {
+        const clean = locationQuery.trim();
+        let resolved = false;
+        const cleanLower = clean.toLowerCase();
+        
+        for (const [key, value] of Object.entries(LOCAL_COORDINATES_MAP)) {
+          if (cleanLower.includes(key)) {
+            setUserCoords(value);
+            setUserLocationName(clean);
+            resolved = true;
+            break;
+          }
+        }
+
+        if (!resolved) {
+          const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(clean)}.json?access_token=${token}&country=IN&limit=1`);
+          const data = await res.json();
+          if (data && data.features && data.features.length > 0) {
+            const coords = data.features[0].geometry.coordinates;
+            setUserCoords({ lat: coords[1], lon: coords[0] });
+            setUserLocationName(data.features[0].place_name);
+          }
+        }
+      } catch (err) {
+        console.error('Error geocoding location query:', err);
+      }
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [locationQuery]);
 
   const fetchConversations = async () => {
     try {
@@ -369,6 +559,28 @@ export default function ClientDashboard() {
     }
   };
 
+  const sortedWorkers = [...workers]
+    .filter(w => !w.isBlocked && (w.honourScore === undefined || w.honourScore > 70))
+    .filter(w => {
+      const matchQ = !searchQuery || 
+        w.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        w.skill?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (w.catalog || []).some((s: any) => s.title.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchQ;
+    })
+    .map(w => {
+      const dist = getWorkerDistance(w);
+      return { ...w, computedDistance: dist };
+    })
+    .sort((a, b) => {
+      const pA = getWorkerPriority(a.computedDistance);
+      const pB = getWorkerPriority(b.computedDistance);
+      if (pA !== pB) {
+        return pA - pB;
+      }
+      return a.computedDistance - b.computedDistance;
+    });
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#030712] pt-0 md:pt-8 px-0 md:px-6 pb-24 md:pb-8">
       <div className="container mx-auto max-w-6xl">
@@ -386,7 +598,7 @@ export default function ClientDashboard() {
               </div>
               <h3 className="font-bold text-lg text-brand-black dark:text-white mb-1">{user.name || 'Client'}</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 justify-center">
-                <MapPin size={14} /> {user.serviceArea || 'Local Area'}
+                <MapPin size={14} /> {userLocationName || user.serviceArea || 'Local Area'}
               </p>
             </div>
 
@@ -451,7 +663,7 @@ export default function ClientDashboard() {
                           className="flex items-center gap-0.5 text-[9px] font-bold text-gray-400 hover:text-white"
                         >
                           <MapPin size={10} className="text-blue-500 fill-blue-500/20" />
-                          <span>Lokhandwala, Andheri West</span>
+                          <span>{userLocationName}</span>
                           <ChevronRight size={10} className="rotate-90 text-gray-500" />
                         </button>
                       </div>
@@ -701,24 +913,13 @@ export default function ClientDashboard() {
                   {searchQuery && (
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        {workers.filter(w => !w.isBlocked).length}+ Professionals found
+                        {sortedWorkers.length} Professionals found
                       </span>
                       <button onClick={() => setSearchQuery('')} className="text-[10px] font-bold text-red-400">Clear Search</button>
                     </div>
                   )}
 
-                  {workers
-                    .filter(w => !w.isBlocked && (w.honourScore === undefined || w.honourScore > 70))
-                    .filter(w => {
-                      const matchQ = !searchQuery || 
-                        w.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                        w.skill?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        (w.catalog || []).some((s: any) => s.title.toLowerCase().includes(searchQuery.toLowerCase()));
-                      const matchL = !locationQuery || 
-                        w.serviceArea?.toLowerCase().includes(locationQuery.toLowerCase());
-                      return matchQ && matchL;
-                    })
-                    .map((worker) => (
+                  {sortedWorkers.map((worker) => (
                     worker.catalog && worker.catalog.length > 0 && worker.catalog.map((item: any, idx: number) => (
                       <div key={`${worker._id}-${idx}`} className="group relative overflow-hidden bg-[#0b0f19] border border-white/5 rounded-3xl p-4 transition-all hover:border-blue-500/20 shadow-md mb-3">
                         {/* Mobile view layout */}
@@ -737,9 +938,14 @@ export default function ClientDashboard() {
 
                           {/* Center info */}
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-white text-sm truncate flex items-center gap-1.5">
+                            <h4 className="font-bold text-white text-sm truncate flex items-center gap-1.5 flex-wrap">
                               {worker.name}
                               <BadgeCheck size={14} className="text-blue-400 fill-blue-400/10" />
+                              {worker.computedDistance <= 5 && (
+                                <span className="text-[8px] font-extrabold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                  Near You
+                                </span>
+                              )}
                             </h4>
                             <div className="flex items-center gap-1 mt-0.5">
                               <Star size={11} className="text-yellow-400 fill-yellow-400" />
@@ -747,7 +953,7 @@ export default function ClientDashboard() {
                               <span className="text-[9px] text-gray-500 font-bold">(120 Reviews)</span>
                             </div>
                             <p className="text-[9px] text-gray-400 font-semibold mt-1">
-                              4.2 km away • 10+ Years exp.
+                              {worker.computedDistance} km away • {worker.serviceArea || 'Local Area'}
                             </p>
                             <p className="text-[10px] text-blue-400 font-extrabold mt-1.5 uppercase tracking-wide">
                               {item.title}
@@ -783,10 +989,28 @@ export default function ClientDashboard() {
                                 {worker.name ? worker.name.charAt(0) : 'W'}
                               </div>
                             )}
-                            <h3 className="font-bold text-brand-black dark:text-white flex items-center justify-center gap-1">
+                            <h3 className="font-bold text-brand-black dark:text-white flex items-center justify-center gap-1 flex-wrap">
                               {worker.name} <BadgeCheck size={16} className="text-brand-electricBlue" />
+                              {worker.computedDistance <= 5 && (
+                                <span className="text-[9px] font-extrabold text-brand-electricBlue bg-brand-electricBlue/10 border border-brand-electricBlue/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                  Near You
+                                </span>
+                              )}
                             </h3>
                             <p className="text-sm text-gray-500 mb-2">{worker.skill || 'Professional'}</p>
+                            
+                            {/* Rating */}
+                            <div className="flex items-center gap-1 justify-center mb-2">
+                              <Star size={14} className="text-yellow-450 fill-yellow-450 text-yellow-400" />
+                              <span className="text-sm font-extrabold text-brand-black dark:text-white">5.0</span>
+                              <span className="text-xs text-gray-500 font-medium">(120 Reviews)</span>
+                            </div>
+
+                            {/* Distance and Location */}
+                            <p className="text-sm text-brand-electricBlue font-bold mb-1">{worker.computedDistance} km away</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 justify-center">
+                              <MapPin size={12} /> {worker.serviceArea || 'Local Area'}
+                            </p>
                           </div>
                           
                           <div className="md:w-3/4 flex flex-col justify-center">
@@ -823,7 +1047,7 @@ export default function ClientDashboard() {
                     ))
                   ))}
                   
-                  {workers.length === 0 && (
+                  {sortedWorkers.length === 0 && (
                     <p className="text-center text-gray-500 py-12">No professional Services available right now.</p>
                   )}
                 </div>
@@ -1155,7 +1379,27 @@ export default function ClientDashboard() {
                     className="w-full p-4 rounded-2xl bg-[#030712] border border-white/5 focus:ring-1 focus:ring-blue-500 outline-none text-xs text-white placeholder-gray-500 leading-relaxed font-semibold resize-none"
                   />
                   <button 
-                    onClick={() => setBookingDetails({ ...bookingDetails, address: 'Lokhandwala, Andheri West, Mumbai - 400053' })}
+                    onClick={async () => {
+                      if (!navigator.geolocation) return;
+                      navigator.geolocation.getCurrentPosition(async (pos) => {
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+                        let addr = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                        if (token) {
+                          try {
+                            const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lon},${lat}.json?access_token=${token}&limit=1`);
+                            const data = await res.json();
+                            if (data && data.features && data.features.length > 0) {
+                              addr = data.features[0].place_name;
+                            }
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }
+                        setBookingDetails({ ...bookingDetails, address: addr });
+                      });
+                    }}
                     className="flex items-center gap-1 text-[10px] text-blue-400 font-bold py-1 hover:text-blue-300"
                   >
                     <Navigation size={12} className="fill-blue-500/10" />
@@ -1355,7 +1599,7 @@ export default function ClientDashboard() {
               {[
                 { val: '320+', label: 'Jobs Done' },
                 { val: '98%', label: 'Success Rate' },
-                { val: '4.2 km', label: 'Away' }
+                { val: `${getWorkerDistance(selectedWorkerForProfile)} km`, label: 'Away' }
               ].map((s, idx) => (
                 <div key={idx} className="bg-[#0b0f19] border border-white/5 rounded-2xl p-3 text-center shadow-md">
                   <p className="text-sm font-extrabold text-white">{s.val}</p>
@@ -1517,6 +1761,49 @@ export default function ClientDashboard() {
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#030712] border border-white/5 focus:ring-1 focus:ring-blue-500 outline-none text-xs text-white placeholder-gray-500"
                 />
               </div>
+              <button
+                onClick={() => {
+                  setIsGpsLoading(true);
+                  navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                      const lat = position.coords.latitude;
+                      const lon = position.coords.longitude;
+                      setUserCoords({ lat, lon });
+                      const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+                      if (token) {
+                        try {
+                          const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lon},${lat}.json?access_token=${token}&limit=1`);
+                          const data = await res.json();
+                          if (data && data.features && data.features.length > 0) {
+                            const placeName = data.features[0].place_name;
+                            setUserLocationName(placeName);
+                            setLocationQuery(placeName);
+                          } else {
+                            setUserLocationName(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+                            setLocationQuery(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+                          }
+                        } catch (err) {
+                          setUserLocationName(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+                          setLocationQuery(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+                        }
+                      } else {
+                        setUserLocationName(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+                        setLocationQuery(`${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+                      }
+                      setIsGpsLoading(false);
+                    },
+                    (err) => {
+                      console.error(err);
+                      setIsGpsLoading(false);
+                      alert("Unable to retrieve GPS location. Please enter manually.");
+                    }
+                  );
+                }}
+                className="flex items-center gap-1.5 text-[10px] text-blue-400 font-bold py-1 hover:text-blue-300 transition-colors"
+              >
+                <Navigation size={12} className="fill-blue-500/10 text-blue-400" />
+                <span>{isGpsLoading ? 'Detecting...' : 'Use Live GPS Location'}</span>
+              </button>
               <button 
                 onClick={() => setSearchFocused(false)}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95"
